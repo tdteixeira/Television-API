@@ -17,10 +17,10 @@ namespace Television_API.Models
     }
 
     public class EpisodateShowDetailedWrapper
-        {
-            [JsonPropertyName("tvShow")]
-            public EpisodateShowDetailed tvShow { get; set; }
-        }
+    {
+        [JsonPropertyName("tvShow")]
+        public EpisodateShowDetailed tvShow { get; set; }
+    }
 
     public class EpisodateShowDetailed
     {
@@ -85,7 +85,7 @@ namespace Television_API.Models
         public List<string> pictures { get; set; }
 
         [JsonPropertyName("episodes")]
-        public List<Episode> episodes { get; set; }
+        public List<EpisodateEpisode> episodes { get; set; }
     }
 
     public class EpisodateEpisode

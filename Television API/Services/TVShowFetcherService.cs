@@ -36,7 +36,7 @@ namespace Television_API.Services {
                     {
                         var existingShow = await db.TVShows.FirstOrDefaultAsync(s => s.title == show.name, stoppingToken);
 
-                        var parsedDate = DateOnly.FromDateTime(DateTime.TryParse(show.start_date, out var date) ? date : DateTime.MinValue);
+                        var parsedDate = DateOnly.TryParse(show.start_date, out var date) ? date : DateOnly.MinValue;
                         var genre = show.genre?.FirstOrDefault() ?? "Unknown";
                         var isOngoing = show.status == "Running";
 
@@ -106,12 +106,14 @@ namespace Television_API.Services {
             {
                 foreach (var episode in detailsData.episodes)
                 {
+                    _logger.LogInformation("Processing episode: " + episode.name + " " + episode.airDate);
+                    var parsedDate = DateOnly.FromDateTime(DateTime.TryParse(episode.airDate, out var date) ? date : DateTime.MinValue);
                     episodes.Add(new Episode
                     {
                         season = episode.season,
-                        episode = episode.episode,
+                        episode = episode.episodeNumber,
                         name = episode.name,
-                        airDate = episode.airDate
+                        airDate = parsedDate,
                     });
                 }
             }
