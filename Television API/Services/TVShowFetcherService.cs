@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using Television_API.Data;
 using Television_API.Models;
 namespace Television_API.Services {
@@ -23,33 +24,53 @@ namespace Television_API.Services {
             {
                 try
                 {
-                    var response = await httpClient.GetStringAsync("https://www.episodate.com/api/most-popular?page=1");
+                    var response = await httpClient.GetStringAsync("https://www.episodate.com/api/most-popular?page=1", stoppingToken);
                     var data = JsonSerializer.Deserialize<EpisodateResponse>(response);
 
                     foreach (var show in data.tv_shows)
                     {
-                        if (!db.TVShows.Any(s => s.Title == show.name))
+                        var existingShow = await db.TVShows.FirstOrDefaultAsync(s => s.title == show.name, stoppingToken);
+
+                        var parsedDate = DateOnly.FromDateTime(DateTime.TryParse(show.start_date, out var date) ? date : DateTime.MinValue);
+                        var genre = show.genre?.FirstOrDefault() ?? "Unknown";
+                        var isOngoing = show.status == "Running";
+
+                        if (existingShow == null)
                         {
+                            // Add new show
                             db.TVShows.Add(new TVShow
                             {
-                                Title = show.name,
-                                Genre = show.genre?.FirstOrDefault() ?? "Unknown",
-                                StartDate = DateOnly.FromDateTime(DateTime.TryParse(show.start_date, out var date) ? date : DateTime.Now),
-                                IsOngoing = show.status == "Running"
+                                title = show.name,
+                                genre = genre,
+                                startDate = parsedDate,
+                                isOngoing = isOngoing
                             });
+                        }
+                        else
+                        {
+                            // Update only if something changed
+                            if (existingShow.genre != genre ||
+                                existingShow.startDate != parsedDate ||
+                                existingShow.isOngoing != isOngoing)
+                            {
+                                existingShow.genre = genre;
+                                existingShow.startDate = parsedDate;
+                                existingShow.isOngoing = isOngoing;
+                            }
                         }
                     }
 
-                    await db.SaveChangesAsync();
-                    _logger.LogInformation("TV shows updated at {time}", DateTimeOffset.Now);
+                    await db.SaveChangesAsync(stoppingToken);
+                    _logger.LogInformation("TV shows synced at {time}", DateTimeOffset.Now);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error fetching TV shows");
+                    _logger.LogError(ex, "Error syncing TV shows");
                 }
 
-                await Task.Delay(TimeSpan.FromHours(6), stoppingToken); // Run every 6 hours
+                await Task.Delay(TimeSpan.FromHours(6), stoppingToken);
             }
+
         }
     }
 }
