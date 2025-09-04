@@ -363,6 +363,6 @@ MigrationBackup/
 FodyWeavers.xsd
 
 #Db releated
-./Television API/*.db
-./Television API/*.db-wal
-./Television API/*.db-shm
+*.db
+*.db-wal
+*.db-shm
