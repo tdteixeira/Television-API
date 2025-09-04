@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+#Db releated
+./Television API/*.db
+./Television API/*.db-wal
+./Television API/*.db-shm
