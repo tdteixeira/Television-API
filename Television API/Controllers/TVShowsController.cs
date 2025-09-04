@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Television_API.Data;
 using Television_API.Models;
+
 
 namespace Television_API.Controllers
 {
@@ -7,26 +10,18 @@ namespace Television_API.Controllers
     [Route("[controller]")]
     public class TVShowsController : ControllerBase
     {
+        private readonly AppDbContext _context;
 
-        private readonly ILogger<TVShowsController> _logger;
-
-        public TVShowsController(ILogger<TVShowsController> logger)
+        public TVShowsController(AppDbContext context)
         {
-            _logger = logger;
+            _context = context;
         }
 
         [HttpGet(Name = "GetTVShows")]
-        public IEnumerable<TVShow> Get()
+        public async Task<IEnumerable<TVShow>> Get()
         {
-            return Enumerable.Range(1, 5).Select(index => new TVShow
-            {
-                Id = index,
-                Title = $"TV Show {index}",
-                Genre = $"Genre {index}",
-                StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                IsOngoing = index % 2 == 0
-            })
-            .ToArray();
+            return await _context.TVShows.ToListAsync();
         }
     }
+
 }

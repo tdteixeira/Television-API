@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Television_API.Data;
+using Television_API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+//Automatic Fetcher for TV Shows
+builder.Services.AddHostedService<TVShowFetcherService>();
 
 var app = builder.Build();
 
