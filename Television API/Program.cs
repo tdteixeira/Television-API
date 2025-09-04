@@ -1,15 +1,20 @@
 using Microsoft.EntityFrameworkCore;
 using Television_API.Data;
+using Television_API.Mappers;
 using Television_API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//AutoMapper
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
 //Db
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Net.Http;
 using System.Text.Json;
 using Television_API.Data;
 using Television_API.Models;
@@ -7,6 +8,9 @@ namespace Television_API.Services {
     {
         private readonly IServiceProvider _services;
         private readonly ILogger<TVShowFetcherService> _logger;
+
+        private const string ApiMostPopularUrl = "https://www.episodate.com/api/most-popular?page={0}";
+        private const string ApiShowDetailsUrl = "https://www.episodate.com/api/show-details?q={0}";
 
         public TVShowFetcherService(IServiceProvider services, ILogger<TVShowFetcherService> logger)
         {
@@ -24,7 +28,8 @@ namespace Television_API.Services {
             {
                 try
                 {
-                    var response = await httpClient.GetStringAsync("https://www.episodate.com/api/most-popular?page=1", stoppingToken);
+                    string paged_url = string.Format(ApiMostPopularUrl, 1);
+                    var response = await httpClient.GetStringAsync(paged_url, stoppingToken);
                     var data = JsonSerializer.Deserialize<EpisodateResponse>(response);
 
                     foreach (var show in data.tv_shows)
@@ -37,14 +42,29 @@ namespace Television_API.Services {
 
                         if (existingShow == null)
                         {
+                            _logger.LogInformation("Adding new show: " + show.name);
+                            ICollection<Episode> episodes = await getShowEpisodesAsync(show.id, httpClient);
+                            _logger.LogInformation("Fetched episodes(up): " + episodes.Count + " for show " + show.name);
                             // Add new show
-                            db.TVShows.Add(new TVShow
+                            var newShow = new TVShow
                             {
                                 title = show.name,
                                 genre = genre,
                                 startDate = parsedDate,
-                                isOngoing = isOngoing
-                            });
+                                isOngoing = isOngoing,
+                                episodes = new List<Episode>()
+                            };
+                            db.TVShows.Add(newShow);
+                            await db.SaveChangesAsync();
+
+                            foreach (var ep in episodes)
+                            {
+                                ep.tvShowId = newShow.id; // Set foreign key
+                                ep.tvShow = newShow; // Link via navigation property
+                                newShow.episodes.Add(ep);
+                            }
+                            await db.SaveChangesAsync();
+
                         }
                         else
                         {
@@ -71,6 +91,31 @@ namespace Television_API.Services {
                 await Task.Delay(TimeSpan.FromHours(6), stoppingToken);
             }
 
+        }
+
+        private async Task<ICollection<Episode>> getShowEpisodesAsync(int id, HttpClient httpClient)
+        {
+            var episodes = new List<Episode>();
+            string details_url = string.Format(ApiShowDetailsUrl, id);
+            var detailsResponse = await httpClient.GetStringAsync(details_url);
+            var detailsData = JsonSerializer.Deserialize<EpisodateShowDetailedWrapper>(detailsResponse).tvShow;
+            if (detailsData == null) {
+                _logger.LogInformation("\nDETAILS DATA FAILED TO DESERIALIZE(again)\n");
+            }
+            if (detailsData?.episodes != null)
+            {
+                foreach (var episode in detailsData.episodes)
+                {
+                    episodes.Add(new Episode
+                    {
+                        season = episode.season,
+                        episode = episode.episode,
+                        name = episode.name,
+                        airDate = episode.airDate
+                    });
+                }
+            }
+            return episodes;
         }
     }
 }
