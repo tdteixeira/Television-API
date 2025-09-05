@@ -20,7 +20,9 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+//Repos
 builder.Services.AddScoped<ITVShowRepository, TVShowRepository>();
+builder.Services.AddScoped<IActorRepository, ActorRepository>();
 
 
 //Automatic Fetcher for TV Shows

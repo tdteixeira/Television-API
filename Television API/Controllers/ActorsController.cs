@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 using Television_API.Data;
 using Television_API.Models;
+using Television_API.Repositories;
 
 namespace Television_API.Controllers
 {
@@ -10,21 +12,19 @@ namespace Television_API.Controllers
     [Route("[controller]")]
     public class ActorsController: ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly IActorRepository _repository;
 
-        public ActorsController(AppDbContext context, IMapper mapper)
+        public ActorsController(IActorRepository repository)
         {
-            _context = context;
-            _mapper = mapper;
+            _repository = repository;
         }
 
         [HttpGet(Name = "GetActors")]
-        public async Task<IEnumerable<ActorDto>> GetActors()
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<ActorDto>))]
+        public async Task<IActionResult> GetActors()
         {
-            var actors = await _context.Actors
-                .ToListAsync();
-            return _mapper.Map<List<ActorDto>>(actors);
+            var actors = await _repository.GetActors();
+            return Ok(actors);
         }
 
     }
