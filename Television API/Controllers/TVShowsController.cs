@@ -25,6 +25,7 @@ namespace Television_API.Controllers
         {
             var tvShows = await _context.TVShows
                 .Include(s => s.episodes)
+                .Include(a => a.actors)
                 .ToListAsync();
 
             return _mapper.Map<List<TVShowDto>>(tvShows);

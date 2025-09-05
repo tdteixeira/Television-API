@@ -10,6 +10,8 @@ namespace Television_API.Services {
 
         private const string ApiMostPopularUrl = "https://www.episodate.com/api/most-popular?page={0}";
         private const string ApiShowDetailsUrl = "https://www.episodate.com/api/show-details?q={0}";
+        private const string ApiSearchTVMazeUrl = "https://api.tvmaze.com/search/shows?q={0}";
+        private const string ApiGetCastUrl = "https://api.tvmaze.com/shows/{0}/cast";
 
         public TVShowFetcherService(IServiceProvider services, ILogger<TVShowFetcherService> logger)
         {
@@ -65,7 +67,7 @@ namespace Television_API.Services {
 
             var parsedDate = DateOnly.TryParse(show.startDate, out var date) ? date : DateOnly.MinValue;
             var isOngoing = show.status == "Running";
-            ICollection<Episode> episodes = getShowEpisodesAsync(show);
+            ICollection<Episode> episodes = getShowEpisodes(show);
 
             // Update existing show
             existingShow.title = show.name;
@@ -84,7 +86,8 @@ namespace Television_API.Services {
 
             var parsedDate = DateOnly.TryParse(show.startDate, out var date) ? date : DateOnly.MinValue;
             var isOngoing = show.status == "Running";
-            ICollection<Episode> episodes = getShowEpisodesAsync(show);
+            ICollection<Episode> episodes = getShowEpisodes(show);
+            ICollection<Actor> actors = await GetShowCastAsync(httpClient, show);
 
             // Add new show
             var newShow = new TVShow
@@ -93,7 +96,8 @@ namespace Television_API.Services {
                 genres = show.genres,
                 startDate = parsedDate,
                 isOngoing = isOngoing,
-                episodes = new List<Episode>()
+                episodes = new List<Episode>(),
+                actors = new List<Actor>()
             };
             db.TVShows.Add(newShow);
             await db.SaveChangesAsync();
@@ -108,9 +112,68 @@ namespace Television_API.Services {
             await db.SaveChangesAsync();
 
             //TODO Add actors
+            foreach (var actor in actors)
+            {
+                var existingActor = await db.Actors.FirstOrDefaultAsync(a => a.name == actor.name);
+                if (existingActor == null)
+                {
+                    existingActor = new Actor
+                    {
+                        name = actor.name,
+                        birthday = actor.birthday,
+                        deathday = actor.deathday,
+                        tvShows = new List<TVShow>()
+                    };
+                    db.Actors.Add(existingActor);
+                    await db.SaveChangesAsync();
+                }
+                existingActor.tvShows.Add(newShow);
+                newShow.actors.Add(existingActor);
+            }
         }
 
-        private ICollection<Episode> getShowEpisodesAsync(EpisodateShowDetailed show)
+        private async Task<ICollection<Actor>> GetShowCastAsync(HttpClient httpClient, EpisodateShowDetailed show)
+        {
+            var actors = new List<Actor>();
+
+            var search_url = string.Format(ApiSearchTVMazeUrl, Uri.EscapeDataString(show.name));
+            var searchResponse = await httpClient.GetStringAsync(search_url);
+            var searchData = JsonSerializer.Deserialize<List<TVMazeShowSearchResult>>(searchResponse);
+            _logger.LogInformation("IS SEARCHDATA EMPY: "+ searchData.Count);
+            if (searchData == null || searchData.Count == 0)
+            {
+                _logger.LogWarning("No TVMaze show found for " + show.name);
+                return actors;
+            }
+
+            var tvMazeShow = searchData.First().show;
+            var cast_url = string.Format(ApiGetCastUrl, tvMazeShow.id);
+            var castResponse = await httpClient.GetStringAsync(cast_url);
+            var castData = JsonSerializer.Deserialize<List<TVMazeCastMember>>(castResponse);
+            if (castData == null)
+            {
+                _logger.LogWarning("No cast data found for TVMaze show " + tvMazeShow.name);
+                return actors;
+            }
+
+            foreach (var member in castData)
+            {
+                _logger.LogInformation("Found actor: " + member.person.name + " for show " + show.name);
+                _logger.LogInformation("Birthday" + member.person.birthday + " Deathday " + member.person.deathday);
+                var person = member.person;
+                actors.Add(new Actor
+                {
+                    name = person.name,
+                    birthday = person.birthday,
+                    deathday = person.deathday,
+                });
+            }
+
+            _logger.LogInformation("Fetched actors(up): " + actors.Count + " for show " + show.name);
+            return actors;
+        }
+
+        private ICollection<Episode> getShowEpisodes(EpisodateShowDetailed show)
         {
             var episodes = new List<Episode>();
             if (show.episodes != null)
