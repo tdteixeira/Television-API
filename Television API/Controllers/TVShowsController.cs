@@ -21,14 +21,34 @@ namespace Television_API.Controllers
         }
 
         [HttpGet(Name = "GetTVShows")]
-        public async Task<IEnumerable<TVShowDto>> Get()
+        public async Task<IEnumerable<TVShowDto>> GetTVShows()
         {
             var tvShows = await _context.TVShows
-                .Include(s => s.episodes)
-                .Include(a => a.actors)
                 .ToListAsync();
 
             return _mapper.Map<List<TVShowDto>>(tvShows);
+        }
+
+        [HttpGet("{showId:int}/episodes",Name = "GetTVShowEpisodes")]
+        public async Task<IEnumerable<EpisodeDto>> GetTVShowEpisodes(int showId)
+        {
+            var episodes = await _context.Episodes
+                .Where(e => e.tvShowId == showId)
+                .ToListAsync();
+
+            return _mapper.Map<List<EpisodeDto>>(episodes);
+
+        }
+
+        [HttpGet("{showId:int}/actors",Name = "GetTVShowActors")]
+        public async Task<IEnumerable<ActorDto>> GetTVShowActors(int showId)
+        {
+            var tvShows = await _context.Actors
+                .Where(a => a.tvShows.Any(s => s.id == showId))
+                .Include(a => a.tvShows)
+                .ToListAsync();
+
+            return _mapper.Map<List<ActorDto>>(tvShows);
         }
 
     }
