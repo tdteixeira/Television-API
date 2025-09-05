@@ -9,12 +9,18 @@ namespace Television_API.Data
         public DbSet<TVShow> TVShows { get; set; }
         public DbSet<Episode> Episodes { get; set; }
 
+        public DbSet<User> Users { get; set; }
+
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
         }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            //Set username as PK for User
+            modelBuilder.Entity<User>()
+                .HasKey(u => u.username);
+
             // Many-to-Many: TVShow <-> Actor
             modelBuilder.Entity<TVShow>()
                 .HasMany(t => t.actors)

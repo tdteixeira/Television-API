@@ -17,7 +17,7 @@ namespace Television_API.Controllers
             _repository = repository;
         }
 
-        [HttpGet(Name = "GetTVShows")]
+        [HttpGet()]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<TVShowDto>))]
         public async Task<IActionResult> GetTVShows()
         {
@@ -25,7 +25,7 @@ namespace Television_API.Controllers
             return Ok(tvshows);
         }
 
-        [HttpGet("{showId:int}/episodes",Name = "GetTVShowEpisodes")]
+        [HttpGet("{showId:int}/episodes")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<EpisodeDto>))]
         public async Task<IActionResult> GetTVShowEpisodes(int showId)
         {
@@ -33,7 +33,7 @@ namespace Television_API.Controllers
             return Ok(episodes);
         }
 
-        [HttpGet("{showId:int}/actors",Name = "GetTVShowActors")]
+        [HttpGet("{showId:int}/actors")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<ActorDto>))]
         public async Task<IActionResult> GetTVShowActors(int showId)
         {
@@ -41,7 +41,7 @@ namespace Television_API.Controllers
             return Ok(actors);
         }
 
-        [HttpPost("search", Name = "SearchTVShows")]
+        [HttpPost("search")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<TVShowDto>))]
         public async Task<IActionResult> SearchTVShows([FromQuery] TVShowDto dto)
         {

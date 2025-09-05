@@ -23,6 +23,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 //Repos
 builder.Services.AddScoped<ITVShowRepository, TVShowRepository>();
 builder.Services.AddScoped<IActorRepository, ActorRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 
 //Automatic Fetcher for TV Shows

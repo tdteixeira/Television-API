@@ -9,6 +9,7 @@ namespace Television_API.Mappers
             CreateMap<Episode, EpisodeDto>();
             CreateMap<TVShow, TVShowDto>();
             CreateMap<Actor, ActorDto>();
+            CreateMap<User, UserDto>();
         }
     }
 }
