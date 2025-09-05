@@ -1,8 +1,5 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using Television_API.Data;
 using Television_API.Models;
 using Television_API.Repositories;
 
@@ -24,7 +21,7 @@ namespace Television_API.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<TVShowDto>))]
         public async Task<IActionResult> GetTVShows()
         {
-            var tvshows = await _repository.GetTVShows();
+            var tvshows = await _repository.GetTVShowsAsync();
             return Ok(tvshows);
         }
 
@@ -32,7 +29,7 @@ namespace Television_API.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<EpisodeDto>))]
         public async Task<IActionResult> GetTVShowEpisodes(int showId)
         {
-            var episodes = await _repository.GetTVShowEpisodes(showId);
+            var episodes = await _repository.GetTVShowEpisodesAsync(showId);
             return Ok(episodes);
         }
 
@@ -40,10 +37,17 @@ namespace Television_API.Controllers
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<ActorDto>))]
         public async Task<IActionResult> GetTVShowActors(int showId)
         {
-            var actors = await _repository.GetTVShowActors(showId);
+            var actors = await _repository.GetTVShowActorsAsync(showId);
             return Ok(actors);
         }
 
+        [HttpPost("search", Name = "SearchTVShows")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<TVShowDto>))]
+        public async Task<IActionResult> SearchTVShows([FromQuery] TVShowDto dto)
+        {
+            var results = await _repository.SearchShowsAsync(dto);
+            return Ok(results);
+        }
     }
 
 }
