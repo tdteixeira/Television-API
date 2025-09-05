@@ -11,7 +11,6 @@ namespace Television_API.Models
     {
         public int id { get; set; }
         public string name { get; set; }
-        public ICollection<string> genre { get; set; }
         public string start_date { get; set; }
         public string status { get; set; }
     }

@@ -8,8 +8,8 @@ namespace Television_API.Services {
         private readonly IServiceProvider _services;
         private readonly ILogger<TVShowFetcherService> _logger;
 
-        private const string ApiMostPopularUrl = "https://www.episodate.com/api/most-popular?page={page}";
-        private const string ApiShowDetailsUrl = "https://www.episodate.com/api/show-details?q={showId}";
+        private const string ApiMostPopularUrl = "https://www.episodate.com/api/most-popular?page={0}";
+        private const string ApiShowDetailsUrl = "https://www.episodate.com/api/show-details?q={0}";
 
         public TVShowFetcherService(IServiceProvider services, ILogger<TVShowFetcherService> logger)
         {
@@ -61,14 +61,13 @@ namespace Television_API.Services {
         private async Task EditExistingShow(HttpClient httpClient, AppDbContext db, TVShow existingShow, EpisodateShow show)
         {
             var parsedDate = DateOnly.TryParse(show.start_date, out var date) ? date : DateOnly.MinValue;
-            var genre = show.genre?.FirstOrDefault() ?? "Unknown";
             var isOngoing = show.status == "Running";
-            _logger.LogInformation("Editing show: " + show.name);
-            ICollection<Episode> episodes = await getShowEpisodesAsync(show.id, httpClient);
+            var detailedshow = await GetDetailedEpisodateTvShow(show.id, httpClient);
+            ICollection<Episode> episodes = getShowEpisodesAsync(detailedshow);
             _logger.LogInformation("Fetched episodes(up): " + episodes.Count + " for show " + show.name);
             // Update existing show
             existingShow.title = show.name;
-            existingShow.genre = genre;
+            existingShow.genres = detailedshow.genres;
             existingShow.startDate = parsedDate;
             existingShow.isOngoing = isOngoing;
             await db.SaveChangesAsync();
@@ -80,16 +79,16 @@ namespace Television_API.Services {
         private async Task AddNewShow(HttpClient httpClient,AppDbContext db, EpisodateShow show)
         {
             var parsedDate = DateOnly.TryParse(show.start_date, out var date) ? date : DateOnly.MinValue;
-            var genre = show.genre?.FirstOrDefault() ?? "Unknown";
             var isOngoing = show.status == "Running";
             _logger.LogInformation("Adding new show: " + show.name);
-            ICollection<Episode> episodes = await getShowEpisodesAsync(show.id, httpClient);
+            var detailedshow = await GetDetailedEpisodateTvShow(show.id, httpClient);
+            ICollection<Episode> episodes = getShowEpisodesAsync(detailedshow);
             _logger.LogInformation("Fetched episodes(up): " + episodes.Count + " for show " + show.name);
             // Add new show
             var newShow = new TVShow
             {
                 title = show.name,
-                genre = genre,
+                genres = detailedshow.genres,
                 startDate = parsedDate,
                 isOngoing = isOngoing,
                 episodes = new List<Episode>()
@@ -106,21 +105,15 @@ namespace Television_API.Services {
             }
             await db.SaveChangesAsync();
 
-            //Add actors
+            //TODO Add actors
         }
 
-        private async Task<ICollection<Episode>> getShowEpisodesAsync(int id, HttpClient httpClient)
+        private ICollection<Episode> getShowEpisodesAsync(EpisodateShowDetailed show)
         {
             var episodes = new List<Episode>();
-            string details_url = string.Format(ApiShowDetailsUrl, id);
-            var detailsResponse = await httpClient.GetStringAsync(details_url);
-            var detailsData = JsonSerializer.Deserialize<EpisodateShowDetailedWrapper>(detailsResponse).tvShow;
-            if (detailsData == null) {
-                _logger.LogInformation("\nDETAILS DATA FAILED TO DESERIALIZE(again)\n");
-            }
-            if (detailsData?.episodes != null)
+            if (show?.episodes != null)
             {
-                foreach (var episode in detailsData.episodes)
+                foreach (var episode in show.episodes)
                 {
                     _logger.LogInformation("Processing episode: " + episode.name + " " + episode.airDate);
                     var parsedDate = DateOnly.FromDateTime(DateTime.TryParse(episode.airDate, out var date) ? date : DateTime.MinValue);
@@ -134,6 +127,18 @@ namespace Television_API.Services {
                 }
             }
             return episodes;
+        }
+
+        private static async Task<EpisodateShowDetailed> GetDetailedEpisodateTvShow(int episodateId, HttpClient httpClient)
+        {
+            string details_url = string.Format(ApiShowDetailsUrl, episodateId);
+            var detailsResponse = await httpClient.GetStringAsync(details_url);
+            var detailsData = JsonSerializer.Deserialize<EpisodateShowDetailedWrapper>(detailsResponse);
+            if (detailsData == null || detailsData.tvShow == null)
+            {
+                throw new Exception("Failed to fetch detailed show data");
+            }
+            return detailsData.tvShow;
         }
     }
 }

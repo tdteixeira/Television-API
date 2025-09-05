@@ -3,8 +3,8 @@
     public class TVShow
     {
         public int id { get; set; }
-        public String title { get; set; }
-        public String genre { get; set; }
+        public string title { get; set; }
+        public ICollection<string> genres { get; set; }
         public DateOnly startDate { get; set; }
         public bool isOngoing { get; set; }
         public ICollection<Actor> actors { get; set; }
@@ -13,8 +13,8 @@
 
     public class TVShowDto
     {
-        public String title { get; set; }
-        public String genre { get; set; }
+        public string title { get; set; }
+        public ICollection<string> genres { get; set; }
         public DateOnly startDate { get; set; }
         public bool isOngoing { get; set; }
         public ICollection<ActorDto> actors { get; set; }
