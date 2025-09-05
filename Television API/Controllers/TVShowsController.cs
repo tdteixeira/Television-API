@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 using Television_API.Data;
 using Television_API.Models;
+using Television_API.Repositories;
 
 
 namespace Television_API.Controllers
@@ -11,44 +13,35 @@ namespace Television_API.Controllers
     [Route("[controller]")]
     public class TVShowsController : ControllerBase
     {
-        private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+        private readonly ITVShowRepository _repository;
 
-        public TVShowsController(AppDbContext context, IMapper mapper)
+        public TVShowsController(ITVShowRepository repository)
         {
-            _context = context;
-            _mapper = mapper;
+            _repository = repository;
         }
 
         [HttpGet(Name = "GetTVShows")]
-        public async Task<IEnumerable<TVShowDto>> GetTVShows()
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<TVShowDto>))]
+        public async Task<IActionResult> GetTVShows()
         {
-            var tvShows = await _context.TVShows
-                .ToListAsync();
-
-            return _mapper.Map<List<TVShowDto>>(tvShows);
+            var tvshows = await _repository.GetTVShows();
+            return Ok(tvshows);
         }
 
         [HttpGet("{showId:int}/episodes",Name = "GetTVShowEpisodes")]
-        public async Task<IEnumerable<EpisodeDto>> GetTVShowEpisodes(int showId)
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<EpisodeDto>))]
+        public async Task<IActionResult> GetTVShowEpisodes(int showId)
         {
-            var episodes = await _context.Episodes
-                .Where(e => e.tvShowId == showId)
-                .ToListAsync();
-
-            return _mapper.Map<List<EpisodeDto>>(episodes);
-
+            var episodes = await _repository.GetTVShowEpisodes(showId);
+            return Ok(episodes);
         }
 
         [HttpGet("{showId:int}/actors",Name = "GetTVShowActors")]
-        public async Task<IEnumerable<ActorDto>> GetTVShowActors(int showId)
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<ActorDto>))]
+        public async Task<IActionResult> GetTVShowActors(int showId)
         {
-            var tvShows = await _context.Actors
-                .Where(a => a.tvShows.Any(s => s.id == showId))
-                .Include(a => a.tvShows)
-                .ToListAsync();
-
-            return _mapper.Map<List<ActorDto>>(tvShows);
+            var actors = await _repository.GetTVShowActors(showId);
+            return Ok(actors);
         }
 
     }

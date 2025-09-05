@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Television_API.Data;
 using Television_API.Mappers;
 using Television_API.Services;
+using Television_API.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,9 @@ builder.Services.AddAutoMapper(typeof(MappingProfile));
 //Db
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<ITVShowRepository, TVShowRepository>();
+
 
 //Automatic Fetcher for TV Shows
 builder.Services.AddHostedService<TVShowFetcherService>();
