@@ -35,14 +35,15 @@ namespace Television_API.Services {
                     foreach (var show in data.tv_shows)
                     {
                         var existingShow = await db.TVShows.FirstOrDefaultAsync(s => s.title == show.name, stoppingToken);
+                        var detailedshow = await GetDetailedEpisodateTvShow(show.id, httpClient);
 
                         if (existingShow == null)
                         {
-                            await AddNewShow(httpClient,db,show);
+                            await AddNewShow(httpClient,db,detailedshow);
                         }
                         else
                         { 
-                            await EditExistingShow(httpClient, db, existingShow, show);
+                            await EditExistingShow(httpClient, db, existingShow, detailedshow);
                         }
 
                     }
@@ -58,16 +59,17 @@ namespace Television_API.Services {
 
         }
 
-        private async Task EditExistingShow(HttpClient httpClient, AppDbContext db, TVShow existingShow, EpisodateShow show)
+        private async Task EditExistingShow(HttpClient httpClient, AppDbContext db, TVShow existingShow, EpisodateShowDetailed show)
         {
-            var parsedDate = DateOnly.TryParse(show.start_date, out var date) ? date : DateOnly.MinValue;
+            _logger.LogInformation("Editing show: " + show.name);
+
+            var parsedDate = DateOnly.TryParse(show.startDate, out var date) ? date : DateOnly.MinValue;
             var isOngoing = show.status == "Running";
-            var detailedshow = await GetDetailedEpisodateTvShow(show.id, httpClient);
-            ICollection<Episode> episodes = getShowEpisodesAsync(detailedshow);
-            _logger.LogInformation("Fetched episodes(up): " + episodes.Count + " for show " + show.name);
+            ICollection<Episode> episodes = getShowEpisodesAsync(show);
+
             // Update existing show
             existingShow.title = show.name;
-            existingShow.genres = detailedshow.genres;
+            existingShow.genres = show.genres;
             existingShow.startDate = parsedDate;
             existingShow.isOngoing = isOngoing;
             await db.SaveChangesAsync();
@@ -76,19 +78,19 @@ namespace Television_API.Services {
 
         }
 
-        private async Task AddNewShow(HttpClient httpClient,AppDbContext db, EpisodateShow show)
+        private async Task AddNewShow(HttpClient httpClient,AppDbContext db, EpisodateShowDetailed show)
         {
-            var parsedDate = DateOnly.TryParse(show.start_date, out var date) ? date : DateOnly.MinValue;
-            var isOngoing = show.status == "Running";
             _logger.LogInformation("Adding new show: " + show.name);
-            var detailedshow = await GetDetailedEpisodateTvShow(show.id, httpClient);
-            ICollection<Episode> episodes = getShowEpisodesAsync(detailedshow);
-            _logger.LogInformation("Fetched episodes(up): " + episodes.Count + " for show " + show.name);
+
+            var parsedDate = DateOnly.TryParse(show.startDate, out var date) ? date : DateOnly.MinValue;
+            var isOngoing = show.status == "Running";
+            ICollection<Episode> episodes = getShowEpisodesAsync(show);
+
             // Add new show
             var newShow = new TVShow
             {
                 title = show.name,
-                genres = detailedshow.genres,
+                genres = show.genres,
                 startDate = parsedDate,
                 isOngoing = isOngoing,
                 episodes = new List<Episode>()
@@ -111,11 +113,10 @@ namespace Television_API.Services {
         private ICollection<Episode> getShowEpisodesAsync(EpisodateShowDetailed show)
         {
             var episodes = new List<Episode>();
-            if (show?.episodes != null)
+            if (show.episodes != null)
             {
                 foreach (var episode in show.episodes)
                 {
-                    _logger.LogInformation("Processing episode: " + episode.name + " " + episode.airDate);
                     var parsedDate = DateOnly.FromDateTime(DateTime.TryParse(episode.airDate, out var date) ? date : DateTime.MinValue);
                     episodes.Add(new Episode
                     {
@@ -126,6 +127,7 @@ namespace Television_API.Services {
                     });
                 }
             }
+            _logger.LogInformation("Fetched episodes(up): " + episodes.Count + " for show " + show.name);
             return episodes;
         }
 
