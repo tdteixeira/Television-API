@@ -29,6 +29,9 @@ builder.Services.AddScoped<ITVShowRepository, TVShowRepository>();
 builder.Services.AddScoped<IActorRepository, ActorRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+//Services
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

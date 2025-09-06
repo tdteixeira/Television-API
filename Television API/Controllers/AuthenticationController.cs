@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Television_API.Models;
 using Television_API.Repositories;
+using Television_API.Services;
 
 namespace Television_API.Controllers
 {
@@ -10,10 +11,10 @@ namespace Television_API.Controllers
     [Route("[controller]")]
     public class AuthenticationController : ControllerBase
     {
-        private readonly IUserRepository _userRepository;
-        public AuthenticationController(IUserRepository userRepository)
+        private readonly IAuthenticationService _authService;
+        public AuthenticationController(IAuthenticationService userRepository)
         {
-            _userRepository = userRepository;
+            _authService = userRepository;
         }
 
         [HttpPost("register")]
@@ -21,7 +22,7 @@ namespace Television_API.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Register(UserRequestDto request)
         {
-            var success = await _userRepository.RegisterUserAsync(request);
+            var success = await _authService.RegisterUserAsync(request);
             if (!success)
             {
                 return BadRequest("Username is already in use.");
@@ -35,7 +36,7 @@ namespace Television_API.Controllers
         [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         public async Task<IActionResult> Login(UserRequestDto request)
         {
-            var token = await _userRepository.LoginUserAsync(request);
+            var token = await _authService.LoginUserAsync(request);
             if (token == null)
             {
                 return Unauthorized("Invalid Password or Username");
