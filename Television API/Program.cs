@@ -82,6 +82,11 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+//Auto lowercase urls
+builder.Services.AddRouting(options =>
+{
+    options.LowercaseUrls = true;
+});
 
 //Automatic Fetcher for TV Shows
 builder.Services.AddHostedService<TVShowFetcherService>();

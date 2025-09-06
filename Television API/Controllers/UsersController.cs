@@ -53,7 +53,7 @@ namespace Television_API.Controllers
             return Ok(token);
         }
 
-        [HttpGet("{username}/favoriteShows")]
+        [HttpGet("{username}/favorite-shows")]
         [ProducesResponseType((int) HttpStatusCode.OK, Type = typeof(IEnumerable<TVShowDto>))]
         [ProducesResponseType((int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetFavoriteShows(string username)
@@ -65,7 +65,7 @@ namespace Television_API.Controllers
             }
             return Ok(favorites);
         }
-        [HttpPost("add/favoriteShows")]
+        [HttpPost("add/favorite-shows")]
         [Authorize]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -82,7 +82,7 @@ namespace Television_API.Controllers
                 return BadRequest("Invalid show or show was already favorited by user");
             }
         }
-        [HttpDelete("delete/favoriteShows")]
+        [HttpDelete("delete/favorite-shows")]
         [Authorize]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
