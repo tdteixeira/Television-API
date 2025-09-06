@@ -27,7 +27,16 @@ $env:JWT_KEY = "your-super-secret-key"
 dotnet run
 ```
 
-or for persistent ENV_VAR
+#### Linux/macOS
+
+```bash
+export JWT_KEY="your-super-secret-key"
+dotnet run
+```
+
+### ✅ Option 2: Persistent Environment Variable
+
+#### Windows (PowerShell)
 
 ```powershell
 [System.Environment]::SetEnvironmentVariable("JWT_KEY", "your-super-secret-key", "User")
@@ -37,5 +46,6 @@ or for persistent ENV_VAR
 
 ```bash
 export JWT_KEY="your-super-secret-key"
+source ~/.bashrc
 dotnet run
 ```
