@@ -17,6 +17,10 @@ namespace Television_API.Repositories
         Task<IEnumerable<UserDto>> GetUsers();
         Task<bool> RegisterUser(UserRequestDto request);
         Task<string> LoginUser(UserRequestDto request);
+
+        Task<IEnumerable<TVShowDto>> GetFavoriteShows(string username);
+        Task<bool> AddFavoriteShow(string username, int showId);
+        Task<bool> RemoveFavoriteShow(string username, int showId);
     }
 
     public class UserRepository : IUserRepository
@@ -66,12 +70,32 @@ namespace Television_API.Repositories
             {
                 username = request.username,
                 passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(request.password)),
-                passwordSalt = hmac.Key
+                passwordSalt = hmac.Key,
+                favoriteShows = new List<TVShow>()
             };
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return true;
+        }
+        public Task<bool> AddFavoriteShow(string username, int showId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<TVShowDto>> GetFavoriteShows(string username)
+        {
+            var user = await _context.Users.FindAsync(username);
+            if (user == null)
+                return null;
+            var favorites = user.favoriteShows;
+            return _mapper.Map<IEnumerable<TVShowDto>>(favorites);
+
+        }
+
+        public Task<bool> RemoveFavoriteShow(string username, int showId)
+        {
+            throw new NotImplementedException();
         }
 
         private string GenerateJwtToken(User user)

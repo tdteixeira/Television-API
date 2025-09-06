@@ -8,7 +8,7 @@ namespace Television_API.Models
         public string username { get; set; }
         public byte[] passwordHash { get; set; }
         public byte[] passwordSalt { get; set; }
-        //public ICollection<TVShow> favoriteShows { get; set; }
+        public ICollection<TVShow> favoriteShows { get; set; }
     }
 
     public class UserRequestDto
@@ -20,6 +20,6 @@ namespace Television_API.Models
     public class UserDto
     {
         public string username { get; set; }
-        //public ICollection<TVShowDto> favoriteShows { get; set; }
+        public ICollection<TVShowDto> favoriteShows { get; set; }
     }
 }

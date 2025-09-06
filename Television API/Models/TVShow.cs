@@ -9,6 +9,7 @@
         public bool isOngoing { get; set; }
         public ICollection<Actor> actors { get; set; }
         public ICollection<Episode> episodes { get; set; }
+        public ICollection<User> favoritedByUsers { get; set; }
     }
 
     public class TVShowDto

@@ -76,7 +76,8 @@ namespace Television_API.Services {
             existingShow.isOngoing = isOngoing;
             await db.SaveChangesAsync();
             //TODO Update episodes
-            //TODO Update actors
+            //TODO Update
+            //TODO Maintain favorited users
 
         }
 
@@ -97,7 +98,8 @@ namespace Television_API.Services {
                 startDate = parsedDate,
                 isOngoing = isOngoing,
                 episodes = new List<Episode>(),
-                actors = new List<Actor>()
+                actors = new List<Actor>(),
+                favoritedByUsers = new List<User>()
             };
             db.TVShows.Add(newShow);
             await db.SaveChangesAsync();

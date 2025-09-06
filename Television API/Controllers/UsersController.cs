@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Threading.Tasks;
 using Television_API.Models;
 using Television_API.Repositories;
 
@@ -50,6 +52,39 @@ namespace Television_API.Controllers
             }
 
             return Ok(token);
+        }
+
+        [HttpGet("{username}/favoriteShows")]
+        public async Task<IActionResult> GetFavoriteShows(string username)
+        {
+            var favorites = await _userRepository.GetFavoriteShows(username);
+            if (favorites == null) 
+            {
+                return NotFound("User not found");
+            }
+            return Ok(favorites);
+        }
+        [HttpPost("add/favoriteShows")]
+        [Authorize]
+        public IActionResult AddFavoriteShow(int showId)
+        {
+            var username = User.Identity?.Name;
+            return Ok(new
+            {
+                message = "You are authorized!",
+                user = username
+            });
+        }
+        [HttpDelete("delete/favoriteShows")]
+        [Authorize]
+        public IActionResult DeleteFavoriteShow(int showId)
+        {
+            var username = User.Identity?.Name;
+            return Ok(new
+            {
+                message = "You are authorized!",
+                user = username
+            });
         }
 
     }

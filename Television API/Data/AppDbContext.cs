@@ -21,6 +21,15 @@ namespace Television_API.Data
             modelBuilder.Entity<User>()
                 .HasKey(u => u.username);
 
+            // Many-to-Many: User <-> TVShow (Favorite Shows)
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.favoriteShows)
+                .WithMany(s => s.favoritedByUsers)
+                .UsingEntity<Dictionary<string, object>>(
+                    "UserFavoriteShow",
+                    j => j.HasOne<TVShow>().WithMany().HasForeignKey("TVShowId"),
+                    j => j.HasOne<User>().WithMany().HasForeignKey("Username"));
+
             // Many-to-Many: TVShow <-> Actor
             modelBuilder.Entity<TVShow>()
                 .HasMany(t => t.actors)
