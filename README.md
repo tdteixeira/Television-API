@@ -25,13 +25,17 @@ This API uses a secret key to sign and validate JWT tokens. For security, the ke
 ```powershell
 $env:JWT_KEY = "your-super-secret-key"
 dotnet run
+```
 
 or for persistent ENV_VAR
 
+```powershell
 [System.Environment]::SetEnvironmentVariable("JWT_KEY", "your-super-secret-key", "User")
-
+```
 
 #### Linux/macOS
 
+```bash
 export JWT_KEY="your-super-secret-key"
 dotnet run
+```
