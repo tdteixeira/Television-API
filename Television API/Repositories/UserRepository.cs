@@ -14,13 +14,13 @@ namespace Television_API.Repositories
 {
     public interface IUserRepository
     {
-        Task<IEnumerable<UserDto>> GetUsers();
-        Task<bool> RegisterUser(UserRequestDto request);
-        Task<string> LoginUser(UserRequestDto request);
+        Task<IEnumerable<UserDto>> GetUsersAsync();
+        Task<bool> RegisterUserAsync(UserRequestDto request);
+        Task<string> LoginUserAsync(UserRequestDto request);
 
-        Task<IEnumerable<TVShowDto>> GetFavoriteShows(string username);
-        Task<bool> AddFavoriteShow(string username, int showId);
-        Task<bool> RemoveFavoriteShow(string username, int showId);
+        Task<IEnumerable<TVShowDto>> GetFavoriteShowsAsync(string username);
+        Task<bool> AddFavoriteShowAsync(string username, int showId);
+        Task<bool> RemoveFavoriteShowAsync(string username, int showId);
     }
 
     public class UserRepository : IUserRepository
@@ -35,13 +35,13 @@ namespace Television_API.Repositories
             _config = config;
         }
 
-        public async Task<IEnumerable<UserDto>> GetUsers()
+        public async Task<IEnumerable<UserDto>> GetUsersAsync()
         {
             var users = await _context.Users.ToListAsync();
             return _mapper.Map<List<UserDto>>(users);
         }
 
-        public async Task<string> LoginUser(UserRequestDto request)
+        public async Task<string> LoginUserAsync(UserRequestDto request)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.username == request.username);
             if (user == null)
@@ -57,7 +57,7 @@ namespace Television_API.Repositories
             return token;
         }
 
-        public async Task<bool> RegisterUser(UserRequestDto request)
+        public async Task<bool> RegisterUserAsync(UserRequestDto request)
         {
             var existingUser = await _context.Users.FindAsync(request.username);
             if (existingUser != null)
@@ -78,7 +78,7 @@ namespace Television_API.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
-        public async Task<bool> AddFavoriteShow(string username, int showId)
+        public async Task<bool> AddFavoriteShowAsync(string username, int showId)
         {
             var user = await _context.Users
                 .Include(u => u.favoriteShows)
@@ -93,7 +93,7 @@ namespace Television_API.Repositories
             return true;
         }
 
-        public async Task<IEnumerable<TVShowDto>> GetFavoriteShows(string username)
+        public async Task<IEnumerable<TVShowDto>> GetFavoriteShowsAsync(string username)
         {
             var user = await _context.Users
                 .Include(u => u.favoriteShows)
@@ -106,7 +106,7 @@ namespace Television_API.Repositories
 
         }
 
-        public async Task<bool> RemoveFavoriteShow(string username, int showId)
+        public async Task<bool> RemoveFavoriteShowAsync(string username, int showId)
         {
             var user = await _context.Users
                  .Include(u => u.favoriteShows)
