@@ -6,6 +6,7 @@ using Television_API.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,25 +29,59 @@ builder.Services.AddScoped<ITVShowRepository, TVShowRepository>();
 builder.Services.AddScoped<IActorRepository, ActorRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-    };
+        var keyString = Environment.GetEnvironmentVariable("JWT_KEY");
+
+        if (string.IsNullOrWhiteSpace(keyString) || keyString == "USE_ENV_VAR")
+            throw new InvalidOperationException("JWT key is missing or invalid. Set the JWT_KEY environment variable.");
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
+
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = key
+        };
+    });
+
+
+//Swagger auth button
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "Television API", Version = "v1" });
+
+    c.AddSecurityDefinition("Bearer", new()
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter your JWT token like: Bearer {token}"
+    });
+
+    c.AddSecurityRequirement(new()
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
+
 
 //Automatic Fetcher for TV Shows
 builder.Services.AddHostedService<TVShowFetcherService>();
@@ -57,7 +92,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Television API v1");
+        c.EnablePersistAuthorization();
+    });
+
 }
 
 app.UseHttpsRedirection();
