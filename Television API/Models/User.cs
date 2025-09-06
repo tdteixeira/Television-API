@@ -20,6 +20,6 @@ namespace Television_API.Models
     public class UserDto
     {
         public string username { get; set; }
-        public ICollection<TVShowDto> favoriteShows { get; set; }
+        //public ICollection<TVShowDto> favoriteShows { get; set; }
     }
 }

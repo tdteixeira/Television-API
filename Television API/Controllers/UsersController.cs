@@ -25,34 +25,6 @@ namespace Television_API.Controllers
             return Ok(users);
         }
 
-        [HttpPost("register")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Register(UserRequestDto request)
-        {
-            var success = await _userRepository.RegisterUserAsync(request);
-            if (!success)
-            {
-                return BadRequest("Username is already in use.");
-            }
-
-            return Ok("User registered successfully.");
-        }
-
-        [HttpPost("login")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
-        public async Task<IActionResult> Login(UserRequestDto request)
-        {
-            var token = await _userRepository.LoginUserAsync(request);
-            if (token == null) 
-            {
-                return Unauthorized("Invalid Password or Username");
-            }
-
-            return Ok(token);
-        }
-
         [HttpGet("{username}/favorite-shows")]
         [ProducesResponseType((int) HttpStatusCode.OK, Type = typeof(IEnumerable<TVShowDto>))]
         [ProducesResponseType((int) HttpStatusCode.NotFound)]
