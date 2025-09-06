@@ -16,7 +16,7 @@ namespace Television_API.Controllers
         }
 
 
-        [HttpPost()]
+        [HttpGet()]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetUsers()
         {
@@ -27,7 +27,7 @@ namespace Television_API.Controllers
         [HttpPost("register")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Register(UserRegistrationDto request)
+        public async Task<IActionResult> Register(UserRequestDto request)
         {
             var success = await _userRepository.RegisterUser(request);
             if (!success)
@@ -37,5 +37,20 @@ namespace Television_API.Controllers
 
             return Ok("User registered successfully.");
         }
+
+        [HttpPost("login")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
+        public async Task<IActionResult> Login(UserRequestDto request)
+        {
+            var token = await _userRepository.LoginUser(request);
+            if (token == null) 
+            {
+                return Unauthorized("Invalid Password or Username");
+            }
+
+            return Ok(token);
+        }
+
     }
 }

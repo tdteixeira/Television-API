@@ -11,7 +11,7 @@ namespace Television_API.Models
         //public ICollection<TVShow> favoriteShows { get; set; }
     }
 
-    public class UserRegistrationDto
+    public class UserRequestDto
     {
         public string username {  set; get; }
         public string password { get; set; }
