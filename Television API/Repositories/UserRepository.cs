@@ -78,14 +78,27 @@ namespace Television_API.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
-        public Task<bool> AddFavoriteShow(string username, int showId)
+        public async Task<bool> AddFavoriteShow(string username, int showId)
         {
-            throw new NotImplementedException();
+            var user = await _context.Users
+                .Include(u => u.favoriteShows)
+                .FirstOrDefaultAsync(u => u.username == username);
+            var show = await _context.TVShows.FindAsync(showId);
+            if (show == null || user!.favoriteShows.Contains(show)) 
+            {
+                return false;
+            }
+            user!.favoriteShows.Add(show);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<IEnumerable<TVShowDto>> GetFavoriteShows(string username)
         {
-            var user = await _context.Users.FindAsync(username);
+            var user = await _context.Users
+                .Include(u => u.favoriteShows)
+                .FirstOrDefaultAsync(u => u.username == username);
+
             if (user == null)
                 return null;
             var favorites = user.favoriteShows;
@@ -93,9 +106,19 @@ namespace Television_API.Repositories
 
         }
 
-        public Task<bool> RemoveFavoriteShow(string username, int showId)
+        public async Task<bool> RemoveFavoriteShow(string username, int showId)
         {
-            throw new NotImplementedException();
+            var user = await _context.Users
+                 .Include(u => u.favoriteShows)
+                 .FirstOrDefaultAsync(u => u.username == username);
+            var show = await _context.TVShows.FindAsync(showId);
+            if (show == null || !user!.favoriteShows.Contains(show))
+            {
+                return false;
+            }
+            user!.favoriteShows.Remove(show);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         private string GenerateJwtToken(User user)

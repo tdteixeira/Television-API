@@ -66,25 +66,33 @@ namespace Television_API.Controllers
         }
         [HttpPost("add/favoriteShows")]
         [Authorize]
-        public IActionResult AddFavoriteShow(int showId)
+        public async Task<IActionResult> AddFavoriteShow(int showId)
         {
             var username = User.Identity?.Name;
-            return Ok(new
+            var hasAdded = await _userRepository.AddFavoriteShow(username!, showId);
+            if (hasAdded)
             {
-                message = "You are authorized!",
-                user = username
-            });
+                return Ok("Added favorited show");
+            }
+            else
+            {
+                return BadRequest("Invalid show or show was already favorited by user");
+            }
         }
         [HttpDelete("delete/favoriteShows")]
         [Authorize]
-        public IActionResult DeleteFavoriteShow(int showId)
+        public async Task<IActionResult> DeleteFavoriteShow(int showId)
         {
             var username = User.Identity?.Name;
-            return Ok(new
+            var hasDeleted = await _userRepository.RemoveFavoriteShow(username!, showId);
+            if (hasDeleted)
             {
-                message = "You are authorized!",
-                user = username
-            });
+                return Ok("Favorited show removed");
+            }
+            else 
+            {
+                return BadRequest("Invalid show or show wasn't favorited by user");
+            }
         }
 
     }
