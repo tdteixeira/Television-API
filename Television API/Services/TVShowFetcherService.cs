@@ -26,14 +26,16 @@ namespace Television_API.Services
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var httpClient = new HttpClient();
 
-            while (!stoppingToken.IsCancellationRequested)
+            int episodatepage = 1;
+            int maxpages = 10; // Limit to first 10 pages for demo purposes
+            while (!stoppingToken.IsCancellationRequested && episodatepage<=maxpages)
             {
-                int episodatepage = 1;
                 try
                 {
                     string paged_url = string.Format(ApiMostPopularUrl, episodatepage);
                     var response = await httpClient.GetStringAsync(paged_url, stoppingToken);
                     var data = JsonSerializer.Deserialize<EpisodateResponse>(response);
+
 
                     foreach (var show in data.tv_shows)
                     {
@@ -51,8 +53,8 @@ namespace Television_API.Services
                 {
                     _logger.LogError(ex, "Error syncing TV shows");
                 }
-
-                await Task.Delay(TimeSpan.FromHours(6), stoppingToken);
+                episodatepage++;
+                await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
             }
 
         }
