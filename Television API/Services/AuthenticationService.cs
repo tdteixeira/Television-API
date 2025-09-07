@@ -4,8 +4,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Television_API.Data;
 using Television_API.Models;
+using Television_API.Repositories;
 
 namespace Television_API.Services
 {
@@ -17,18 +17,18 @@ namespace Television_API.Services
 
     public class AuthenticationService : IAuthenticationService
     {
-        private readonly AppDbContext _context;
+        private readonly IUserRepository _userRepository;
         private readonly IConfiguration _config;
 
-        public AuthenticationService(AppDbContext context, IConfiguration config)
+        public AuthenticationService(IUserRepository repository, IConfiguration config)
         {
-            _context = context;
+            _userRepository = repository;
             _config = config;
         }
 
         public async Task<string> LoginUserAsync(UserRequestDto request)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.username == request.username);
+            var user = await _userRepository.GetUserAsync(request.username);
             if (user == null)
                 return null;
 
@@ -44,7 +44,7 @@ namespace Television_API.Services
 
         public async Task<bool> RegisterUserAsync(UserRequestDto request)
         {
-            var existingUser = await _context.Users.FindAsync(request.username);
+            var existingUser = await _userRepository.GetUserAsync(request.username);
             if (existingUser != null)
             {
                 return false; // Username is taken
@@ -59,9 +59,7 @@ namespace Television_API.Services
                 favoriteShows = new List<TVShow>()
             };
 
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-            return true;
+            return await _userRepository.CreateUserAsync(user); ;
         }
 
 

@@ -10,6 +10,8 @@ namespace Television_API.Repositories
     public interface IUserRepository
     {
         Task<IEnumerable<UserDto>> GetUsersAsync();
+        Task<User> GetUserAsync(string  username);
+        Task<bool> CreateUserAsync(User user);
         Task<IEnumerable<TVShowDto>> GetFavoriteShowsAsync(string username);
         Task<bool> AddFavoriteShowAsync(string username, int showId);
         Task<bool> RemoveFavoriteShowAsync(string username, int showId);
@@ -61,15 +63,28 @@ namespace Television_API.Repositories
 
         public async Task<bool> RemoveFavoriteShowAsync(string username, int showId)
         {
-            var user = await _context.Users
-                 .Include(u => u.favoriteShows)
-                 .FirstOrDefaultAsync(u => u.username == username);
+            var user = await GetUserAsync(username);
             var show = await _context.TVShows.FindAsync(showId);
             if (show == null || !user!.favoriteShows.Contains(show))
             {
                 return false;
             }
             user!.favoriteShows.Remove(show);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<User> GetUserAsync(string username)
+        {
+            var user = await _context.Users
+                 .Include(u => u.favoriteShows)
+                 .FirstOrDefaultAsync(u => u.username == username);
+            return user;
+        }
+
+        public async Task<bool> CreateUserAsync(User user)
+        {
+            _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return true;
         }
