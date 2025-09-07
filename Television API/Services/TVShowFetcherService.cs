@@ -2,7 +2,8 @@
 using System.Text.Json;
 using Television_API.Data;
 using Television_API.Models;
-namespace Television_API.Services {
+namespace Television_API.Services
+{
     public class TVShowFetcherService : BackgroundService
     {
         private readonly IServiceProvider _services;
@@ -30,7 +31,7 @@ namespace Television_API.Services {
                 int episodatepage = 1;
                 try
                 {
-                    string paged_url = string.Format(ApiMostPopularUrl,episodatepage);
+                    string paged_url = string.Format(ApiMostPopularUrl, episodatepage);
                     var response = await httpClient.GetStringAsync(paged_url, stoppingToken);
                     var data = JsonSerializer.Deserialize<EpisodateResponse>(response);
 
@@ -41,47 +42,22 @@ namespace Television_API.Services {
 
                         if (existingShow == null)
                         {
-                            await AddNewShow(httpClient,db,detailedshow);
+                            await AddNewShow(httpClient, db, detailedshow);
                         }
-                        else
-                        { 
-                            await EditExistingShow(httpClient, db, existingShow, detailedshow);
-                        }
-
                     }
-                    _logger.LogInformation("TV shows from page {page} synced at {time}",episodatepage,DateTimeOffset.Now);
+                    _logger.LogInformation("TV shows from page {page} synced at {time}", episodatepage, DateTimeOffset.Now);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error syncing TV shows");
                 }
-                
+
                 await Task.Delay(TimeSpan.FromHours(6), stoppingToken);
             }
 
         }
 
-        private async Task EditExistingShow(HttpClient httpClient, AppDbContext db, TVShow existingShow, EpisodateShowDetailed show)
-        {
-            _logger.LogInformation("Editing show: " + show.name);
-
-            var parsedDate = DateOnly.TryParse(show.startDate, out var date) ? date : DateOnly.MinValue;
-            var isOngoing = show.status == "Running";
-            ICollection<Episode> episodes = getShowEpisodes(show);
-
-            // Update existing show
-            existingShow.title = show.name;
-            existingShow.genres = show.genres;
-            existingShow.startDate = parsedDate;
-            existingShow.isOngoing = isOngoing;
-            await db.SaveChangesAsync();
-            //TODO Update episodes
-            //TODO Update
-            //TODO Maintain favorited users
-
-        }
-
-        private async Task AddNewShow(HttpClient httpClient,AppDbContext db, EpisodateShowDetailed show)
+        private async Task AddNewShow(HttpClient httpClient, AppDbContext db, EpisodateShowDetailed show)
         {
             _logger.LogInformation("Adding new show: " + show.name);
 
@@ -111,7 +87,6 @@ namespace Television_API.Services {
                 ep.tvShow = newShow; // Link via navigation
                 newShow.episodes.Add(ep);
             }
-            await db.SaveChangesAsync();
 
             //TODO Add actors
             foreach (var actor in actors)
@@ -127,11 +102,11 @@ namespace Television_API.Services {
                         tvShows = new List<TVShow>()
                     };
                     db.Actors.Add(existingActor);
-                    await db.SaveChangesAsync();
                 }
                 existingActor.tvShows.Add(newShow);
                 newShow.actors.Add(existingActor);
             }
+            await db.SaveChangesAsync();
         }
 
         private async Task<ICollection<Actor>> GetShowCastAsync(HttpClient httpClient, EpisodateShowDetailed show)
@@ -141,7 +116,7 @@ namespace Television_API.Services {
             var search_url = string.Format(ApiSearchTVMazeUrl, Uri.EscapeDataString(show.name));
             var searchResponse = await httpClient.GetStringAsync(search_url);
             var searchData = JsonSerializer.Deserialize<List<TVMazeShowSearchResult>>(searchResponse);
-            _logger.LogInformation("IS SEARCHDATA EMPY: "+ searchData.Count);
+            _logger.LogInformation("IS SEARCHDATA EMPY: " + searchData.Count);
             if (searchData == null || searchData.Count == 0)
             {
                 _logger.LogWarning("No TVMaze show found for " + show.name);
