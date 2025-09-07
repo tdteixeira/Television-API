@@ -27,7 +27,7 @@ namespace Television_API.Services
             var httpClient = new HttpClient();
 
             int episodatepage = 1;
-            int maxpages = 10; // Limit to first 10 pages for demo purposes
+            int maxpages = 5; // Limit to first 5 pages for demo purposes
             while (!stoppingToken.IsCancellationRequested && episodatepage<=maxpages)
             {
                 try
