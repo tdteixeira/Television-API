@@ -59,7 +59,7 @@ namespace Television_API.Services
                 favoriteShows = new List<TVShow>()
             };
 
-            return await _userRepository.CreateUserAsync(user); ;
+            return await _userRepository.AddUserAsync(user); ;
         }
 
 

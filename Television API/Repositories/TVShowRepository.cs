@@ -7,6 +7,8 @@ namespace Television_API.Repositories
 {
     public interface ITVShowRepository
     {
+        Task<TVShow> GetTVShowAsync(int id);
+        Task<bool> AddTVShowAsync(TVShow show);
         Task<IEnumerable<TVShowDto>> GetTVShowsAsync();
         Task<IEnumerable<EpisodeDto>> GetTVShowEpisodesAsync(int showId);
         Task<IEnumerable<ActorDto>> GetTVShowActorsAsync(int showId);
@@ -70,5 +72,20 @@ namespace Television_API.Repositories
             return _mapper.Map<List<TVShowDto>>(results);
         }
 
+        public async Task<TVShow> GetTVShowAsync(int id)
+        {
+            var show = await _context.TVShows
+                .Include(s => s.actors)
+                .Include(s => s.episodes)
+                .FirstOrDefaultAsync(s => s.id == id);
+            return show;
+        }
+
+        public async Task<bool> AddTVShowAsync(TVShow show)
+        {
+            _context.TVShows.Add(show);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

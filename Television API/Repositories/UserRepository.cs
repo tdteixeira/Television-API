@@ -11,7 +11,7 @@ namespace Television_API.Repositories
     {
         Task<IEnumerable<UserDto>> GetUsersAsync();
         Task<User> GetUserAsync(string  username);
-        Task<bool> CreateUserAsync(User user);
+        Task<bool> AddUserAsync(User user);
         Task<IEnumerable<TVShowDto>> GetFavoriteShowsAsync(string username);
         Task<bool> AddFavoriteShowAsync(string username, int showId);
         Task<bool> RemoveFavoriteShowAsync(string username, int showId);
@@ -82,7 +82,7 @@ namespace Television_API.Repositories
             return user;
         }
 
-        public async Task<bool> CreateUserAsync(User user)
+        public async Task<bool> AddUserAsync(User user)
         {
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
