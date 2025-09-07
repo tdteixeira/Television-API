@@ -28,14 +28,14 @@ namespace Television_API.Services
 
         public async Task<string> LoginUserAsync(UserRequestDto request)
         {
-            var user = await _userRepository.GetUserAsync(request.username);
+            var user = await _userRepository.GetUserAsync(request.Username);
             if (user == null)
                 return null;
 
-            using var hmac = new HMACSHA512(user.passwordSalt);
-            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(request.password));
+            using var hmac = new HMACSHA512(user.PasswordSalt);
+            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(request.Password));
 
-            if (!computedHash.SequenceEqual(user.passwordHash))
+            if (!computedHash.SequenceEqual(user.PasswordHash))
                 return null;
 
             var token = GenerateJwtToken(user);// Função que gera o JWT
@@ -44,7 +44,7 @@ namespace Television_API.Services
 
         public async Task<bool> RegisterUserAsync(UserRequestDto request)
         {
-            var existingUser = await _userRepository.GetUserAsync(request.username);
+            var existingUser = await _userRepository.GetUserAsync(request.Username);
             if (existingUser != null)
             {
                 return false; // Username is taken
@@ -53,10 +53,10 @@ namespace Television_API.Services
             using var hmac = new HMACSHA512();
             var user = new User
             {
-                username = request.username,
-                passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(request.password)),
-                passwordSalt = hmac.Key,
-                favoriteShows = new List<TVShow>()
+                Username = request.Username,
+                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(request.Password)),
+                PasswordSalt = hmac.Key,
+                FavoriteShows = new List<TVShow>()
             };
 
             return await _userRepository.AddUserAsync(user); ;
@@ -67,7 +67,7 @@ namespace Television_API.Services
         {
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, user.username),
+                new Claim(ClaimTypes.Name, user.Username),
             };
 
             var keyString = Environment.GetEnvironmentVariable("JWT_KEY");

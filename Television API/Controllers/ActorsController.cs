@@ -7,7 +7,7 @@ namespace Television_API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class ActorsController: ControllerBase
+    public class ActorsController : ControllerBase
     {
         private readonly IActorRepository _repository;
 
@@ -16,12 +16,25 @@ namespace Television_API.Controllers
             _repository = repository;
         }
 
-        [HttpGet(Name = "GetActors")]
+        [HttpGet()]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<ActorDto>))]
         public async Task<IActionResult> GetActors()
         {
-            var actors = await _repository.GetActors();
+            var actors = await _repository.GetActorsAsync();
             return Ok(actors);
+        }
+
+        [HttpGet("{actorId:int}/tvshows")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<TVShowDto>))]
+        public async Task<IActionResult> GetActorTVShow(int actorId)
+        {
+            var actor = await _repository.GetActorAsync(actorId);
+            if (actor == null)
+            {
+                return NotFound();
+            }
+            var shows = await _repository.GetTVShowFromActorAsync(actorId);
+            return Ok(shows);
         }
 
     }

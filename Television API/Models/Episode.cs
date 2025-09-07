@@ -2,20 +2,20 @@
 {
     public class Episode
     {
-        public int id { get; set; }
-        public int season { get; set; }
-        public int episode { get; set; }
-        public string name { get; set; }
-        public DateOnly airDate { get; set; }
-        public int tvShowId { get; set; }
-        public TVShow tvShow { get; set; }
+        public int Id { get; set; }
+        public int Season { get; set; }
+        public int EpisodeNumber { get; set; }
+        public string Name { get; set; }
+        public DateOnly AirDate { get; set; }
+        public int TvShowId { get; set; }
+        public TVShow TvShow { get; set; }
     }
 
     public class EpisodeDto
     {
-        public int season { get; set; }
-        public int episode { get; set; }
-        public string name { get; set; }
-        public DateOnly airDate { get; set; }
+        public int Season { get; set; }
+        public int EpisodeNumber { get; set; }
+        public string Name { get; set; }
+        public DateOnly AirDate { get; set; }
     }
 }

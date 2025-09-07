@@ -37,7 +37,7 @@ namespace Television_API.Services
 
                     foreach (var show in data.tv_shows)
                     {
-                        var existingShow = await db.TVShows.FirstOrDefaultAsync(s => s.title == show.name, stoppingToken);
+                        var existingShow = await db.TVShows.FirstOrDefaultAsync(s => s.Title == show.name, stoppingToken);
                         var detailedshow = await GetDetailedEpisodateTvShow(show.id, httpClient);
 
                         if (existingShow == null)
@@ -69,13 +69,13 @@ namespace Television_API.Services
             // Add new show
             var newShow = new TVShow
             {
-                title = show.name,
-                genres = show.genres,
-                startDate = parsedDate,
-                isOngoing = isOngoing,
-                episodes = new List<Episode>(),
-                actors = new List<Actor>(),
-                favoritedByUsers = new List<User>()
+                Title = show.name,
+                Genres = show.genres,
+                StartDate = parsedDate,
+                IsOngoing = isOngoing,
+                Episodes = new List<Episode>(),
+                Actors = new List<Actor>(),
+                FavoritedByUsers = new List<User>()
             };
             db.TVShows.Add(newShow);
             await db.SaveChangesAsync();
@@ -83,28 +83,28 @@ namespace Television_API.Services
             // Add episodes
             foreach (var ep in episodes)
             {
-                ep.tvShowId = newShow.id; // Set foreign key
-                ep.tvShow = newShow; // Link via navigation
-                newShow.episodes.Add(ep);
+                ep.TvShowId = newShow.Id; // Set foreign key
+                ep.TvShow = newShow; // Link via navigation
+                newShow.Episodes.Add(ep);
             }
 
             //TODO Add actors
             foreach (var actor in actors)
             {
-                var existingActor = await db.Actors.FirstOrDefaultAsync(a => a.name == actor.name);
+                var existingActor = await db.Actors.FirstOrDefaultAsync(a => a.Name == actor.Name);
                 if (existingActor == null)
                 {
                     existingActor = new Actor
                     {
-                        name = actor.name,
-                        birthday = actor.birthday,
-                        deathday = actor.deathday,
-                        tvShows = new List<TVShow>()
+                        Name = actor.Name,
+                        Birthday = actor.Birthday,
+                        Deathday = actor.Deathday,
+                        TvShows = new List<TVShow>()
                     };
                     db.Actors.Add(existingActor);
                 }
-                existingActor.tvShows.Add(newShow);
-                newShow.actors.Add(existingActor);
+                existingActor.TvShows.Add(newShow);
+                newShow.Actors.Add(existingActor);
             }
             await db.SaveChangesAsync();
         }
@@ -140,9 +140,9 @@ namespace Television_API.Services
                 var person = member.person;
                 actors.Add(new Actor
                 {
-                    name = person.name,
-                    birthday = person.birthday,
-                    deathday = person.deathday,
+                    Name = person.name,
+                    Birthday = person.birthday,
+                    Deathday = person.deathday,
                 });
             }
 
@@ -160,10 +160,10 @@ namespace Television_API.Services
                     var parsedDate = DateOnly.FromDateTime(DateTime.TryParse(episode.airDate, out var date) ? date : DateTime.MinValue);
                     episodes.Add(new Episode
                     {
-                        season = episode.season,
-                        episode = episode.episodeNumber,
-                        name = episode.name,
-                        airDate = parsedDate,
+                        Season = episode.season,
+                        EpisodeNumber = episode.episodeNumber,
+                        Name = episode.name,
+                        AirDate = parsedDate,
                     });
                 }
             }

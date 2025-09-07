@@ -36,14 +36,14 @@ namespace Television_API.Repositories
         public async Task<bool> AddFavoriteShowAsync(string username, int showId)
         {
             var user = await _context.Users
-                .Include(u => u.favoriteShows)
-                .FirstOrDefaultAsync(u => u.username == username);
+                .Include(u => u.FavoriteShows)
+                .FirstOrDefaultAsync(u => u.Username == username);
             var show = await _context.TVShows.FindAsync(showId);
-            if (show == null || user!.favoriteShows.Contains(show)) 
+            if (show == null || user!.FavoriteShows.Contains(show)) 
             {
                 return false;
             }
-            user!.favoriteShows.Add(show);
+            user!.FavoriteShows.Add(show);
             await _context.SaveChangesAsync();
             return true;
         }
@@ -51,12 +51,12 @@ namespace Television_API.Repositories
         public async Task<IEnumerable<TVShowDto>> GetFavoriteShowsAsync(string username)
         {
             var user = await _context.Users
-                .Include(u => u.favoriteShows)
-                .FirstOrDefaultAsync(u => u.username == username);
+                .Include(u => u.FavoriteShows)
+                .FirstOrDefaultAsync(u => u.Username == username);
 
             if (user == null)
                 return null;
-            var favorites = user.favoriteShows;
+            var favorites = user.FavoriteShows;
             return _mapper.Map<IEnumerable<TVShowDto>>(favorites);
 
         }
@@ -65,11 +65,11 @@ namespace Television_API.Repositories
         {
             var user = await GetUserAsync(username);
             var show = await _context.TVShows.FindAsync(showId);
-            if (show == null || !user!.favoriteShows.Contains(show))
+            if (show == null || !user!.FavoriteShows.Contains(show))
             {
                 return false;
             }
-            user!.favoriteShows.Remove(show);
+            user!.FavoriteShows.Remove(show);
             await _context.SaveChangesAsync();
             return true;
         }
@@ -77,8 +77,8 @@ namespace Television_API.Repositories
         public async Task<User> GetUserAsync(string username)
         {
             var user = await _context.Users
-                 .Include(u => u.favoriteShows)
-                 .FirstOrDefaultAsync(u => u.username == username);
+                 .Include(u => u.FavoriteShows)
+                 .FirstOrDefaultAsync(u => u.Username == username);
             return user;
         }
 

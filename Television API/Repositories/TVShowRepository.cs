@@ -34,7 +34,7 @@ namespace Television_API.Repositories
         public async Task<IEnumerable<EpisodeDto>> GetTVShowEpisodesAsync(int showId)
         {
             var episodes = await _context.Episodes
-                .Where(e => e.tvShowId == showId)
+                .Where(e => e.TvShowId == showId)
                 .ToListAsync();
             return _mapper.Map<List<EpisodeDto>>(episodes);
         }
@@ -42,8 +42,8 @@ namespace Television_API.Repositories
         public async Task<IEnumerable<ActorDto>> GetTVShowActorsAsync(int showId)
         {
             var actors = await _context.Actors
-                .Where(a => a.tvShows.Any(s => s.id == showId))
-                .Include(a => a.tvShows)
+                .Where(a => a.TvShows.Any(s => s.Id == showId))
+                .Include(a => a.TvShows)
                 .ToListAsync();
             return _mapper.Map<List<ActorDto>>(actors);
         }
@@ -52,20 +52,20 @@ namespace Television_API.Repositories
         {
             var query = _context.TVShows.AsQueryable();
 
-            if (dto.id.HasValue)
-                query = query.Where(s => s.id == dto.id.Value);
+            if (dto.Id.HasValue)
+                query = query.Where(s => s.Id == dto.Id.Value);
 
-            if (!string.IsNullOrWhiteSpace(dto.title))
-                query = query.Where(s => s.title.Contains(dto.title));
+            if (!string.IsNullOrWhiteSpace(dto.Title))
+                query = query.Where(s => s.Title.Contains(dto.Title));
 
-            if (dto.genres != null && dto.genres.Any())
-                query = query.Where(s => s.genres.Any(g => dto.genres.Contains(g)));
+            if (dto.Genres != null && dto.Genres.Any())
+                query = query.Where(s => s.Genres.Any(g => dto.Genres.Contains(g)));
 
-            if (dto.startDate.HasValue)
-                query = query.Where(s => s.startDate == dto.startDate.Value);
+            if (dto.StartDate.HasValue)
+                query = query.Where(s => s.StartDate == dto.StartDate.Value);
 
-            if (dto.isOngoing.HasValue)
-                query = query.Where(s => s.isOngoing == dto.isOngoing.Value);
+            if (dto.IsOngoing.HasValue)
+                query = query.Where(s => s.IsOngoing == dto.IsOngoing.Value);
 
             var results = await query.ToListAsync();
 
@@ -75,9 +75,9 @@ namespace Television_API.Repositories
         public async Task<TVShow> GetTVShowAsync(int id)
         {
             var show = await _context.TVShows
-                .Include(s => s.actors)
-                .Include(s => s.episodes)
-                .FirstOrDefaultAsync(s => s.id == id);
+                .Include(s => s.Actors)
+                .Include(s => s.Episodes)
+                .FirstOrDefaultAsync(s => s.Id == id);
             return show;
         }
 

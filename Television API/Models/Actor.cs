@@ -2,17 +2,18 @@
 {
     public class Actor
     {
-        public int id { get; set; }
-        public String name { get; set; }
-        public string? birthday { get; set; }
-        public string? deathday { get; set; }
-        public ICollection<TVShow> tvShows { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string? Birthday { get; set; }
+        public string? Deathday { get; set; }
+        public ICollection<TVShow> TvShows { get; set; }
     }
 
     public class ActorDto
     {
-        public String name { get; set; }
-        public string birthday { get; set; }
-        public string deathday { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string? Birthday { get; set; }
+        public string? Deathday { get; set; }
     }
 }

@@ -19,12 +19,12 @@ namespace Television_API.Data
         {
             //Set username as PK for User
             modelBuilder.Entity<User>()
-                .HasKey(u => u.username);
+                .HasKey(u => u.Username);
 
             // Many-to-Many: User <-> TVShow (Favorite Shows)
             modelBuilder.Entity<User>()
-                .HasMany(u => u.favoriteShows)
-                .WithMany(s => s.favoritedByUsers)
+                .HasMany(u => u.FavoriteShows)
+                .WithMany(s => s.FavoritedByUsers)
                 .UsingEntity<Dictionary<string, object>>(
                     "UserFavoriteShow",
                     j => j.HasOne<TVShow>().WithMany().HasForeignKey("TVShowId"),
@@ -32,8 +32,8 @@ namespace Television_API.Data
 
             // Many-to-Many: TVShow <-> Actor
             modelBuilder.Entity<TVShow>()
-                .HasMany(t => t.actors)
-                .WithMany(a => a.tvShows)
+                .HasMany(t => t.Actors)
+                .WithMany(a => a.TvShows)
                 .UsingEntity<Dictionary<string, object>>(
                     "TVShowActor",
                     j => j.HasOne<Actor>().WithMany().HasForeignKey("ActorId"),
@@ -41,9 +41,9 @@ namespace Television_API.Data
 
             // One-to-Many: TVShow -> Episodes
             modelBuilder.Entity<TVShow>()
-                .HasMany(t => t.episodes)
-                .WithOne(e => e.tvShow)
-                .HasForeignKey(e => e.tvShowId)
+                .HasMany(t => t.Episodes)
+                .WithOne(e => e.TvShow)
+                .HasForeignKey(e => e.TvShowId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

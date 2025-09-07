@@ -8,7 +8,9 @@ namespace Television_API.Repositories
 {
     public interface IActorRepository
     {
-        Task<IEnumerable<ActorDto>> GetActors();
+        Task<Actor> GetActorAsync(int actorId);
+        Task<IEnumerable<ActorDto>> GetActorsAsync();
+        Task<IEnumerable<TVShowDto>> GetTVShowFromActorAsync(int actorId);
     }
 
     public class ActorRepository : IActorRepository
@@ -21,10 +23,24 @@ namespace Television_API.Repositories
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ActorDto>> GetActors()
+        public async Task<Actor> GetActorAsync(int actorId)
+        {
+            var actor = await _context.Actors
+                .Include(a => a.TvShows)
+                .FirstOrDefaultAsync(a => a.Id == actorId);
+            return actor;
+        }
+
+        public async Task<IEnumerable<ActorDto>> GetActorsAsync()
         {
             var actors = await _context.Actors.ToListAsync();
             return _mapper.Map<List<ActorDto>>(actors);
+        }
+
+        public async Task<IEnumerable<TVShowDto>> GetTVShowFromActorAsync(int actorId)
+        {
+            var actor = await GetActorAsync(actorId);
+            return _mapper.Map<IEnumerable<TVShowDto>>(actor!.TvShows);
         }
     }
 }

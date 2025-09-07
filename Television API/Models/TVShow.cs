@@ -2,24 +2,24 @@
 {
     public class TVShow
     {
-        public int id { get; set; }
-        public string title { get; set; }
-        public ICollection<string> genres { get; set; }
-        public DateOnly startDate { get; set; }
-        public bool isOngoing { get; set; }
-        public ICollection<Actor> actors { get; set; }
-        public ICollection<Episode> episodes { get; set; }
-        public ICollection<User> favoritedByUsers { get; set; }
+        public int Id { get; set; }
+        public string Title { get; set; }
+        public ICollection<string> Genres { get; set; }
+        public DateOnly StartDate { get; set; }
+        public bool IsOngoing { get; set; }
+        public ICollection<Actor> Actors { get; set; }
+        public ICollection<Episode> Episodes { get; set; }
+        public ICollection<User> FavoritedByUsers { get; set; }
     }
 
     public class TVShowDto
     {
-        public int? id { get; set; }
-        public string? title { get; set; }
-        public ICollection<string>? genres { get; set; }
-        public DateOnly? startDate { get; set; }
-        public bool? isOngoing { get; set; }
-        //public ICollection<ActorDto> actors { get; set; }
-        //public ICollection<EpisodeDto> episodes { get; set; }
+        public int? Id { get; set; }
+        public string? Title { get; set; }
+        public ICollection<string>? Genres { get; set; }
+        public DateOnly? StartDate { get; set; }
+        public bool? IsOngoing { get; set; }
+        //public ICollection<ActorDto> Actors { get; set; }
+        //public ICollection<EpisodeDto> Episodes { get; set; }
     }
 }
