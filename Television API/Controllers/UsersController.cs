@@ -28,9 +28,9 @@ namespace Television_API.Controllers
         [HttpGet("{username}/favorite-shows")]
         [ProducesResponseType((int) HttpStatusCode.OK, Type = typeof(IEnumerable<TVShowDto>))]
         [ProducesResponseType((int) HttpStatusCode.NotFound)]
-        public async Task<IActionResult> GetFavoriteShows(string username)
+        public async Task<IActionResult> GetFavoriteShows([FromQuery]PaginationParams p, string username)
         {
-            var favorites = await _userRepository.GetFavoriteShowsAsync(username);
+            var favorites = await _userRepository.GetPagedFavoriteShowsAsync(p,username);
             if (favorites == null) 
             {
                 return NotFound("User not found");

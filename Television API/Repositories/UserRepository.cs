@@ -13,7 +13,7 @@ namespace Television_API.Repositories
         Task<IEnumerable<UserDto>> GetPagedUsersAsync(PaginationParams p);
         Task<User> GetUserAsync(string  username);
         Task<bool> AddUserAsync(User user);
-        Task<IEnumerable<TVShowDto>> GetFavoriteShowsAsync(string username);
+        Task<IEnumerable<TVShowDto>> GetPagedFavoriteShowsAsync(PaginationParams p, string username);
         Task<bool> AddFavoriteShowAsync(string username, int showId);
         Task<bool> RemoveFavoriteShowAsync(string username, int showId);
     }
@@ -49,15 +49,19 @@ namespace Television_API.Repositories
             return true;
         }
 
-        public async Task<IEnumerable<TVShowDto>> GetFavoriteShowsAsync(string username)
+        public async Task<IEnumerable<TVShowDto>> GetPagedFavoriteShowsAsync(PaginationParams p,string username)
         {
             var user = await _context.Users
+                .AsNoTracking()
                 .Include(u => u.FavoriteShows)
                 .FirstOrDefaultAsync(u => u.Username == username);
 
             if (user == null)
                 return null;
-            var favorites = user.FavoriteShows;
+            var favorites = user.FavoriteShows
+                .Skip((p.PageNumber-1)*p.PageSize)
+                .Take(p.PageSize)
+                .ToList();
             return _mapper.Map<IEnumerable<TVShowDto>>(favorites);
 
         }
