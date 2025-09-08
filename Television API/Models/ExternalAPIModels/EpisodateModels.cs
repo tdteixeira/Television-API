@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Television_API.Models
+namespace Television_API.Models.ExternalAPIModels
 {
     public class EpisodateResponse
     {

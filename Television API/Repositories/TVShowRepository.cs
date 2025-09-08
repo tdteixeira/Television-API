@@ -70,6 +70,8 @@ namespace Television_API.Repositories
                 query = query.Where(s => s.IsOngoing == dto.IsOngoing.Value);
 
             var results = await query
+                .Include(s => s.Episodes)
+                .Include(s => s.FavoritedByUsers)
                 .AsNoTracking()
                 .OrderBy(s => s.Id)
                 .Skip((p.PageNumber - 1) * p.PageSize)
@@ -98,6 +100,8 @@ namespace Television_API.Repositories
         public async Task<IEnumerable<TVShowDto>> GetPagedTVShowsAsync(PaginationParams p)
         {
             var products = await _context.TVShows
+                .Include(s=>s.Episodes)
+                .Include(s=>s.FavoritedByUsers)
                 .AsNoTracking()
                 .OrderBy(s => s.Id)
                 .Skip((p.PageNumber - 1) * p.PageSize)

@@ -52,8 +52,10 @@ namespace Television_API.Repositories
         public async Task<IEnumerable<TVShowDto>> GetPagedFavoriteShowsAsync(PaginationParams p,string username)
         {
             var user = await _context.Users
-                .AsNoTracking()
                 .Include(u => u.FavoriteShows)
+                    .ThenInclude(s => s.Episodes)
+                .Include(u => u.FavoriteShows)
+                    .ThenInclude(s => s.FavoritedByUsers)
                 .FirstOrDefaultAsync(u => u.Username == username);
 
             if (user == null)
@@ -63,7 +65,6 @@ namespace Television_API.Repositories
                 .Take(p.PageSize)
                 .ToList();
             return _mapper.Map<IEnumerable<TVShowDto>>(favorites);
-
         }
 
         public async Task<bool> RemoveFavoriteShowAsync(string username, int showId)

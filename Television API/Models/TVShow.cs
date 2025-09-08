@@ -19,7 +19,9 @@
         public ICollection<string>? Genres { get; set; }
         public DateOnly? StartDate { get; set; }
         public bool? IsOngoing { get; set; }
-        //public ICollection<ActorDto> Actors { get; set; }
-        //public ICollection<EpisodeDto> Episodes { get; set; }
+
+        public int NumberOfEpisodes { get; set; }
+        public int NumberOfFavorites { get; set; }
+
     }
 }

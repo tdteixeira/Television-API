@@ -2,6 +2,7 @@
 using System.Text.Json;
 using Television_API.Data;
 using Television_API.Models;
+using Television_API.Models.ExternalAPIModels;
 namespace Television_API.Services
 {
     public class TVShowFetcherService : BackgroundService
