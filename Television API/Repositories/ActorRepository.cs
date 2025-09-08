@@ -10,6 +10,7 @@ namespace Television_API.Repositories
     {
         Task<Actor> GetActorAsync(int actorId);
         Task<IEnumerable<ActorDto>> GetActorsAsync();
+        Task<IEnumerable<ActorDto>> GetPagedActorsAsync(PaginationParams p);
         Task<IEnumerable<TVShowDto>> GetTVShowFromActorAsync(int actorId);
     }
 
@@ -34,6 +35,17 @@ namespace Television_API.Repositories
         public async Task<IEnumerable<ActorDto>> GetActorsAsync()
         {
             var actors = await _context.Actors.ToListAsync();
+            return _mapper.Map<List<ActorDto>>(actors);
+        }
+
+        public async Task<IEnumerable<ActorDto>> GetPagedActorsAsync(PaginationParams p)
+        {
+            var actors = await _context.Actors
+                .AsNoTracking()
+                .OrderBy(a => a.Id)
+                .Skip((p.PageNumber - 1) * p.PageSize)
+                .Take(p.PageSize)
+                .ToListAsync();
             return _mapper.Map<List<ActorDto>>(actors);
         }
 
