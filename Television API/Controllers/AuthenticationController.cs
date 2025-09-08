@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Television_API.Models;
-using Television_API.Repositories;
 using Television_API.Services;
 
 namespace Television_API.Controllers
@@ -17,6 +15,13 @@ namespace Television_API.Controllers
             _authService = userRepository;
         }
 
+        /// <summary>
+        /// Registers a new user with the provided credentials.
+        /// </summary>
+        /// <param name="request">User registration details - username and password.</param>
+        /// <returns>
+        /// Returns HTTP 200 OK if registration is successful, or HTTP 400 Bad Request if the username is already in use.
+        /// </returns>
         [HttpPost("register")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
@@ -31,6 +36,13 @@ namespace Television_API.Controllers
             return Ok("User registered successfully.");
         }
 
+        /// <summary>
+        /// Authenticates a user and returns a JWT token if credentials are valid.
+        /// </summary>
+        /// <param name="request">User login details - username and password.</param>
+        /// <returns>
+        /// Returns HTTP 200 OK with a JWT token if login is successful, or HTTP 401 Unauthorized if credentials are invalid.
+        /// </returns>
         [HttpPost("login")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
