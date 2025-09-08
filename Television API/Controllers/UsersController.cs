@@ -19,9 +19,9 @@ namespace Television_API.Controllers
 
         [HttpGet()]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetUsers()
+        public async Task<IActionResult> GetUsers([FromQuery]PaginationParams p)
         {
-            var users = await _userRepository.GetUsersAsync();
+            var users = await _userRepository.GetPagedUsersAsync(p);
             return Ok(users);
         }
 

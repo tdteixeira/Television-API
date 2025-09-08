@@ -95,8 +95,8 @@ namespace Television_API.Repositories
             var products = await _context.TVShows
                 .AsNoTracking()
                 .OrderBy(s => s.Id)
-                .Skip((p.pageNumber - 1) * p.pageSize)
-                .Take(p.pageSize)
+                .Skip((p.PageNumber - 1) * p.PageSize)
+                .Take(p.PageSize)
                 .ToListAsync();
             return _mapper.Map<List<TVShowDto>>(products);
         }

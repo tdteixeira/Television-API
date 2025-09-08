@@ -10,6 +10,7 @@ namespace Television_API.Repositories
     public interface IUserRepository
     {
         Task<IEnumerable<UserDto>> GetUsersAsync();
+        Task<IEnumerable<UserDto>> GetPagedUsersAsync(PaginationParams p);
         Task<User> GetUserAsync(string  username);
         Task<bool> AddUserAsync(User user);
         Task<IEnumerable<TVShowDto>> GetFavoriteShowsAsync(string username);
@@ -87,6 +88,17 @@ namespace Television_API.Repositories
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<IEnumerable<UserDto>> GetPagedUsersAsync(PaginationParams p)
+        {
+            var users = await _context.Users
+                .AsNoTracking()
+                .OrderBy(u => u.Username)
+                .Skip((p.PageNumber - 1) * p.PageSize)
+                .Take(p.PageSize)
+                .ToListAsync();
+            return _mapper.Map<List<UserDto>>(users);
         }
     }
 }
