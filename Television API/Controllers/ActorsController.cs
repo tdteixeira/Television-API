@@ -16,6 +16,13 @@ namespace Television_API.Controllers
             _repository = repository;
         }
 
+        /// <summary>
+        /// Retrieves a paginated list of actors.
+        /// </summary>
+        /// <param name="p">Pagination parameters including page number and page size.</param>
+        /// <returns>
+        /// A list of <see cref="ActorDto"/> objects wrapped in an HTTP 200 OK response.
+        /// </returns>
         [HttpGet()]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<ActorDto>))]
         public async Task<IActionResult> GetActors([FromQuery] PaginationParams p)
@@ -24,6 +31,13 @@ namespace Television_API.Controllers
             return Ok(actors);
         }
 
+        /// <summary>
+        /// Retrieves a list of all tvshows made by given actor.
+        /// </summary>
+        /// <param name="actorId">Id of the actor searched.</param>
+        /// <returns>
+        /// A list of <see cref="TVShowDto"/> objects wrapped in an HTTP 200 OK response. Or a 404 in case the given ID don't exist
+        /// </returns>
         [HttpGet("{actorId:int}/tvshows")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<TVShowDto>))]
         public async Task<IActionResult> GetActorTVShow(int actorId)

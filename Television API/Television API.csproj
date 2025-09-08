@@ -4,8 +4,9 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>Television_API</RootNamespace>
-  </PropertyGroup>
+	<RootNamespace>Television_API</RootNamespace>
+	<GenerateDocumentationFile>true</GenerateDocumentationFile>
+</PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.1" />
