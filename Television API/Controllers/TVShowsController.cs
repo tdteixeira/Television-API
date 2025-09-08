@@ -19,9 +19,9 @@ namespace Television_API.Controllers
 
         [HttpGet()]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<TVShowDto>))]
-        public async Task<IActionResult> GetTVShows()
+        public async Task<IActionResult> GetTVShows([FromQuery] PaginationParams p)
         {
-            var tvshows = await _repository.GetTVShowsAsync();
+            var tvshows = await _repository.GetPagedTVShowsAsync(p);
             return Ok(tvshows);
         }
 

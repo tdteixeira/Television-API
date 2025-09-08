@@ -9,6 +9,8 @@ namespace Television_API.Repositories
     {
         Task<TVShow> GetTVShowAsync(int id);
         Task<bool> AddTVShowAsync(TVShow show);
+
+        Task<IEnumerable<TVShowDto>> GetPagedTVShowsAsync(PaginationParams paginParams);
         Task<IEnumerable<TVShowDto>> GetTVShowsAsync();
         Task<IEnumerable<EpisodeDto>> GetTVShowEpisodesAsync(int showId);
         Task<IEnumerable<ActorDto>> GetTVShowActorsAsync(int showId);
@@ -86,6 +88,17 @@ namespace Television_API.Repositories
             _context.TVShows.Add(show);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<IEnumerable<TVShowDto>> GetPagedTVShowsAsync(PaginationParams p)
+        {
+            var products = await _context.TVShows
+                .AsNoTracking()
+                .OrderBy(s => s.Id)
+                .Skip((p.pageNumber - 1) * p.pageSize)
+                .Take(p.pageSize)
+                .ToListAsync();
+            return _mapper.Map<List<TVShowDto>>(products);
         }
     }
 }
