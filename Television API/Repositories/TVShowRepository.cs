@@ -14,7 +14,7 @@ namespace Television_API.Repositories
         Task<IEnumerable<TVShowDto>> GetTVShowsAsync();
         Task<IEnumerable<EpisodeDto>> GetTVShowEpisodesAsync(int showId);
         Task<IEnumerable<ActorDto>> GetTVShowActorsAsync(int showId);
-        Task<IEnumerable<TVShowDto>> SearchShowsAsync(TVShowDto dto);
+        Task<IEnumerable<TVShowDto>> PagedSearchShowsAsync(PaginationParams p,TVShowDto dto);
     }
 
     public class TVShowRepository : ITVShowRepository
@@ -50,7 +50,7 @@ namespace Television_API.Repositories
             return _mapper.Map<List<ActorDto>>(actors);
         }
 
-        public async Task<IEnumerable<TVShowDto>> SearchShowsAsync(TVShowDto dto)
+        public async Task<IEnumerable<TVShowDto>> PagedSearchShowsAsync(PaginationParams p ,TVShowDto dto)
         {
             var query = _context.TVShows.AsQueryable();
 
@@ -58,7 +58,7 @@ namespace Television_API.Repositories
                 query = query.Where(s => s.Id == dto.Id.Value);
 
             if (!string.IsNullOrWhiteSpace(dto.Title))
-                query = query.Where(s => s.Title.Contains(dto.Title));
+                query = query.Where(s => EF.Functions.Like(s.Title.ToLower(), $"%{dto.Title.ToLower()}%"));
 
             if (dto.Genres != null && dto.Genres.Any())
                 query = query.Where(s => s.Genres.Any(g => dto.Genres.Contains(g)));
@@ -69,7 +69,12 @@ namespace Television_API.Repositories
             if (dto.IsOngoing.HasValue)
                 query = query.Where(s => s.IsOngoing == dto.IsOngoing.Value);
 
-            var results = await query.ToListAsync();
+            var results = await query
+                .AsNoTracking()
+                .OrderBy(s => s.Id)
+                .Skip((p.PageNumber - 1) * p.PageSize)
+                .Take(p.PageSize)
+                .ToListAsync();
 
             return _mapper.Map<List<TVShowDto>>(results);
         }

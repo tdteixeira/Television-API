@@ -43,9 +43,9 @@ namespace Television_API.Controllers
 
         [HttpPost("search")]
         [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<TVShowDto>))]
-        public async Task<IActionResult> SearchTVShows([FromQuery] TVShowDto dto)
+        public async Task<IActionResult> SearchTVShows([FromQuery] PaginationParams p, [FromQuery] TVShowDto dto)
         {
-            var results = await _repository.SearchShowsAsync(dto);
+            var results = await _repository.PagedSearchShowsAsync(p,dto);
             return Ok(results);
         }
     }
