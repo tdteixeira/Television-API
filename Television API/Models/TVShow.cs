@@ -4,12 +4,12 @@
     {
         public int Id { get; set; }
         public string Title { get; set; }
-        public ICollection<string> Genres { get; set; }
+        public ICollection<string> Genres { get; set; } = new List<string>();
         public DateOnly StartDate { get; set; }
         public bool IsOngoing { get; set; }
-        public ICollection<Actor> Actors { get; set; }
-        public ICollection<Episode> Episodes { get; set; }
-        public ICollection<User> FavoritedByUsers { get; set; }
+        public ICollection<Actor> Actors { get; set; } = new List<Actor>();
+        public ICollection<Episode> Episodes { get; set; } = new List<Episode>();
+        public ICollection<User> FavoritedByUsers { get; set; } = new List<User>();
     }
 
     public class TVShowDto

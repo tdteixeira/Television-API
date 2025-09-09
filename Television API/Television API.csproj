@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	<RootNamespace>Television_API</RootNamespace>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<NoWarn>1591</NoWarn>
 </PropertyGroup>
 
   <ItemGroup>

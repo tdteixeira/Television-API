@@ -6,7 +6,7 @@
         public string Name { get; set; }
         public DateOnly? Birthday { get; set; }
         public DateOnly? Deathday { get; set; }
-        public ICollection<TVShow> TvShows { get; set; }
+        public ICollection<TVShow> TvShows { get; set; } = new List<TVShow>();
     }
 
     public class ActorDto
