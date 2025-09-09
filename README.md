@@ -60,7 +60,7 @@ dotnet run
 Clone the repository
 ```bash
 git clone https://github.com/tdteixeira/Television-API.git
-cd television-api
+cd Television-API/Television-API
 ```
 Restore dependencies
 ```bash
@@ -76,9 +76,7 @@ To use the release build just compile it with:
 ```bash
 dotnet publish -c Release -o ./publish
 ```
-And run the .exe
-
-The API will start at https://localhost:5000 in production build.
+And run the .exe (once again, don't forget Jwt setup)
 
 ---
 
