@@ -51,5 +51,19 @@ namespace Television_API.Controllers
             return Ok(shows);
         }
 
+        /// <summary>
+        /// Searches Actors using filter criteria and returns a paginated result.
+        /// </summary>
+        /// <param name="p">Pagination parameters - page number and page size.</param>
+        /// <param name="dto">Filter criteria - id, name , birthday, deathday.</param>
+        /// <returns>A filtered list of <see cref="ActorDto"/> objects.</returns>
+        [HttpPost]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(IEnumerable<ActorDto>))]
+        public async Task<IActionResult> PagedSearchForActor([FromQuery]PaginationParams p, [FromQuery]ActorDto dto) 
+        {
+            var results = await _repository.PagedSearchForActorASync(p, dto);
+            return Ok(results);
+        }
+
     }
 }

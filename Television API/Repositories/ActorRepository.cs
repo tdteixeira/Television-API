@@ -12,6 +12,7 @@ namespace Television_API.Repositories
         Task<IEnumerable<ActorDto>> GetActorsAsync();
         Task<IEnumerable<ActorDto>> GetPagedActorsAsync(PaginationParams p);
         Task<IEnumerable<TVShowDto>> GetTVShowFromActorAsync(int actorId);
+        Task<IEnumerable<ActorDto>> PagedSearchForActorASync(PaginationParams p, ActorDto dto);
     }
 
     public class ActorRepository : IActorRepository
@@ -53,6 +54,28 @@ namespace Television_API.Repositories
         {
             var actor = await GetActorAsync(actorId);
             return _mapper.Map<IEnumerable<TVShowDto>>(actor!.TvShows);
+        }
+
+        public async Task<IEnumerable<ActorDto>> PagedSearchForActorASync(PaginationParams p, ActorDto dto)
+        {
+            var query = _context.Actors.AsQueryable();
+            if (dto.Id.HasValue)
+                query = query.Where(a => a.Id == dto.Id.Value);
+            if (!string.IsNullOrWhiteSpace(dto.Name))
+                query = query.Where(a => EF.Functions.Like(a.Name.ToLower(), $"%{dto.Name.ToLower()}%"));
+            if (dto.Birthday.HasValue)
+                query = query.Where(a => a.Birthday == dto.Birthday.Value);
+            if (dto.Deathday.HasValue)
+                query = query.Where(a => a.Deathday == dto.Deathday.Value);
+
+            var results = await query
+                .AsNoTracking()
+                .OrderBy(s => s.Id)
+                .Skip((p.PageNumber - 1) * p.PageSize)
+                .Take(p.PageSize)
+                .ToListAsync();
+
+            return _mapper.Map<List<ActorDto>>(results);
         }
     }
 }

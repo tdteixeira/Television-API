@@ -141,11 +141,13 @@ namespace Television_API.Services
                 _logger.LogInformation("Found actor: " + member.person.name + " for show " + show.name);
                 _logger.LogInformation("Birthday" + member.person.birthday + " Deathday " + member.person.deathday);
                 var person = member.person;
+                var resultParsedBirthDay = DateOnly.TryParse(person.birthday, out var parsedBirthDay);
+                var resultParsedDeathDay = DateOnly.TryParse(person.deathday, out var parsedDeathDay);
                 actors.Add(new Actor
                 {
                     Name = person.name,
-                    Birthday = person.birthday,
-                    Deathday = person.deathday,
+                    Birthday = resultParsedBirthDay ? parsedBirthDay : null,
+                    Deathday = resultParsedDeathDay ?  parsedDeathDay: null,
                 });
             }
 
