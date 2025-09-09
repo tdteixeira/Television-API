@@ -60,7 +60,7 @@ dotnet run
 Clone the repository
 ```bash
 git clone https://github.com/tdteixeira/Television-API.git
-cd Television-API/Television-API
+cd Television-API/Television API/
 ```
 Restore dependencies
 ```bash
