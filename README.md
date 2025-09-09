@@ -16,6 +16,13 @@ This guide will walk you through setting up the project, configuring the JWT key
 
 This API uses a secret key to sign and validate JWT tokens. For security, the key is not stored directly in the codebase. You must set it manually before running the project.
 
+### Generate a key
+Generate a key using your prefered method.<br>
+Example: 
+```bash
+openssl rand -hex 64
+```
+
 ### Option 1: Temporary Environment Variable (Session-only)
 
 #### Windows (PowerShell)
