@@ -21,12 +21,27 @@ namespace Television_API.Controllers
         /// </summary>
         /// <param name="p">Pagination parameters - page number and page size.</param>
         /// <returns>A list of users wrapped in an HTTP 200 OK response.</returns>
-        [HttpGet]
         [HttpGet()]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetUsers([FromQuery]PaginationParams p)
         {
             var users = await _userRepository.GetPagedUsersAsync(p);
+            return Ok(users);
+        }
+
+        /// <summary>
+        /// Searches for users by username and returns paginated results.
+        /// </summary>
+        /// <param name="p">Pagination parameters including page number and page size.</param>
+        /// <param name="query">The search term used to filter users by username.</param>
+        /// <returns>
+        /// A 200 OK response containing a paginated list of users that match the search query.
+        /// </returns>
+        [HttpGet("/search")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        public async Task<IActionResult> SearchPagedUsers([FromQuery] PaginationParams p, string query)
+        {
+            var users = await _userRepository.SearchUserAsync(p,query);
             return Ok(users);
         }
 

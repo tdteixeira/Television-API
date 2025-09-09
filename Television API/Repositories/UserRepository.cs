@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using System;
 using Television_API.Data;
 using Television_API.Models;
 
@@ -16,6 +17,7 @@ namespace Television_API.Repositories
         Task<IEnumerable<TVShowDto>> GetPagedFavoriteShowsAsync(PaginationParams p, string username);
         Task<bool> AddFavoriteShowAsync(string username, int showId);
         Task<bool> RemoveFavoriteShowAsync(string username, int showId);
+        Task<IEnumerable<UserDto>> SearchUserAsync(PaginationParams p, string queryString);
     }
 
     public class UserRepository : IUserRepository
@@ -103,6 +105,22 @@ namespace Television_API.Repositories
                 .Skip((p.PageNumber - 1) * p.PageSize)
                 .Take(p.PageSize)
                 .ToListAsync();
+            return _mapper.Map<List<UserDto>>(users);
+        }
+
+        public async Task<IEnumerable<UserDto>> SearchUserAsync(PaginationParams p, string queryString)
+        {
+            var query = _context.Users.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(queryString))
+                query = query.Where(u => EF.Functions.Like(u.Username.ToLower(), $"%{queryString.ToLower()}%"));
+
+            var users = await query
+            .AsNoTracking()
+            .OrderBy(u => u.Username)
+            .Skip((p.PageNumber - 1) * p.PageSize)
+            .Take(p.PageSize)
+            .ToListAsync();
             return _mapper.Map<List<UserDto>>(users);
         }
     }
