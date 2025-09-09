@@ -28,7 +28,7 @@ namespace Television_API.Services
             var httpClient = new HttpClient();
 
             int episodatepage = 1;
-            int maxpages = 5; // Limit to first 5 pages for demo purposes
+            int maxpages = 3; // Limit to first 3 pages for demo purposes
             while (!stoppingToken.IsCancellationRequested && episodatepage<=maxpages)
             {
                 try
@@ -37,7 +37,7 @@ namespace Television_API.Services
                     var response = await httpClient.GetStringAsync(paged_url, stoppingToken);
                     var data = JsonSerializer.Deserialize<EpisodateResponse>(response);
 
-
+                    _logger.LogInformation("Fetched page {page} from Episodate", episodatepage);
                     foreach (var show in data.tv_shows)
                     {
                         var existingShow = await db.TVShows.FirstOrDefaultAsync(s => s.Title == show.name, stoppingToken);
@@ -62,8 +62,6 @@ namespace Television_API.Services
 
         private async Task AddNewShow(HttpClient httpClient, AppDbContext db, EpisodateShowDetailed show)
         {
-            _logger.LogInformation("Adding new show: " + show.name);
-
             var parsedDate = DateOnly.TryParse(show.startDate, out var date) ? date : DateOnly.MinValue;
             var isOngoing = show.status == "Running";
             ICollection<Episode> episodes = getShowEpisodes(show);
@@ -119,7 +117,6 @@ namespace Television_API.Services
             var search_url = string.Format(ApiSearchTVMazeUrl, Uri.EscapeDataString(show.name));
             var searchResponse = await httpClient.GetStringAsync(search_url);
             var searchData = JsonSerializer.Deserialize<List<TVMazeShowSearchResult>>(searchResponse);
-            _logger.LogInformation("IS SEARCHDATA EMPY: " + searchData.Count);
             if (searchData == null || searchData.Count == 0)
             {
                 _logger.LogWarning("No TVMaze show found for " + show.name);
@@ -138,8 +135,6 @@ namespace Television_API.Services
 
             foreach (var member in castData)
             {
-                _logger.LogInformation("Found actor: " + member.person.name + " for show " + show.name);
-                _logger.LogInformation("Birthday" + member.person.birthday + " Deathday " + member.person.deathday);
                 var person = member.person;
                 var resultParsedBirthDay = DateOnly.TryParse(person.birthday, out var parsedBirthDay);
                 var resultParsedDeathDay = DateOnly.TryParse(person.deathday, out var parsedDeathDay);
@@ -150,8 +145,6 @@ namespace Television_API.Services
                     Deathday = resultParsedDeathDay ?  parsedDeathDay: null,
                 });
             }
-
-            _logger.LogInformation("Fetched actors(up): " + actors.Count + " for show " + show.name);
             return actors;
         }
 
@@ -172,7 +165,6 @@ namespace Television_API.Services
                     });
                 }
             }
-            _logger.LogInformation("Fetched episodes(up): " + episodes.Count + " for show " + show.name);
             return episodes;
         }
 
