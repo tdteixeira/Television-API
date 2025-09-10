@@ -1,0 +1,3 @@
+I analyzed the challenge and sketched initial database structure. Then I planned the overall structure of the project and the flow of the program.
+Before start implementing I research unifamiliar tools and how they work.
+I built the models and configured EF database. After that I developed core functionality of the endpoints and added authentication. After the project was done I added/refactored some details and documented every endpoint.
