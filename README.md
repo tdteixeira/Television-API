@@ -85,3 +85,6 @@ Run the API in the Development environment and use Swagger UI to interact with t
 
 ## Documentation
 Provided on Swagger.
+```
+localhost:{port}/swagger/index.html
+```
